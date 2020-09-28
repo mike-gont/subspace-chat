@@ -1,3 +1,21 @@
 :host {
-  
+
+}
+
+.home-container {
+  display: flex;
+  height: 100%;
+}
+
+.chats-list-container {
+  flex-grow: 1;
+  min-width: 280px;
+  max-width: 500px;
+  background-color: #222831;
+  color: lightgray;
+}
+
+.chat-container {
+  flex-grow: 2;
+  background-color: #252e3d;
 }

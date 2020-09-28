@@ -1,0 +1,30 @@
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+li a {
+  display: block;
+  color: whitesmoke;
+  font-size: 1rem;
+  height: 5em;
+  line-height: 1.5;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.75em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #66376e;
+}
+
+li a:focus,
+li a:active {
+  background-color: #512b58;
+}
+
