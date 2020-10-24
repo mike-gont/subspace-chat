@@ -7,7 +7,7 @@
   height: 100%;
 }
 
-.message-item {
+.empty-chat-view-label {
   align-items: center;
   background-color: whitesmoke;
   border-radius: 8px;
@@ -21,3 +21,24 @@
   padding-right: 1em;
   white-space: nowrap;
 }
+
+.message-item {
+  background-color: whitesmoke;
+  border-radius: 8px;
+  color: #4a4a4a;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding-left: 1em;
+  padding-right: 1em;
+  white-space: nowrap;
+  padding-top: 1em;
+}
+
+.chat-view {
+  height: 100%;
+  width: 100%;
+  margin:4px, 4px; 
+  padding:4px; 
+  overflow-x: hidden; 
+  overflow-y: auto; 
+} 

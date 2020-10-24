@@ -1,5 +1,14 @@
-<div class="no-chat-selected-view">
-  <div class="tag message-item">
+<div *ngIf="chatId == undefined" class="no-chat-selected-view">
+  <div class="empty-chat-view-label">
     Please select a chat
   </div>
+</div>
+
+<div *ngIf="chatId != undefined" class="chat-view">
+  <div class="message-item" *ngFor="let msg of chatMessages">
+    <p class="">{{msg.from}}</p>
+    <p class="">{{msg.date}}</p>
+    <p class="">{{msg.text}}</p>
+  </div>
+  <br>
 </div>

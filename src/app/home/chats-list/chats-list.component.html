@@ -1,10 +1,15 @@
 <div class="chats-list">
 
   <ul>
-    <li><a href="#">a chat item</a></li>
-    <li><a href="#">a chat item</a></li>
-    <li><a href="#">a chat item</a></li>
-    <li><a href="#">a chat item</a></li>
+
+    <li *ngFor="let chatListItem of chatsList" (click)="onSelect(chatListItem.id)">
+      <a href="#">
+        <p class="chat-label">{{chatListItem.name}}</p>
+        <p class="chat-date">{{chatListItem.last_msg_date}}</p>
+        <p class="chat-last-msg">{{chatListItem.last_msg_from}}: {{chatListItem.last_msg_text}}</p>
+      </a>
+    </li>
+
   </ul>
 
 </div>
