@@ -15,18 +15,30 @@ export class ChatComponent implements OnInit {
   chatId: number;
   chatMessages = [];
 
+  myUserId: number;
+  inputBoxMessage: string;
+
   constructor(private homeComponent: HomeComponent) {
+    // loadChat when the homeComponent.currentChatId changes
     homeComponent.currentChatId$.subscribe(
       chatId => {
         this.loadChat(chatId);
       });
+    // TODO: get from data service when ready
+    this.myUserId = 478948757;
   }
 
   ngOnInit(): void {
   }
 
   loadChat(chatId: number) {
+    // TODO: use service to do the json operations
     const store = new Store({name: "chat-" + chatId, schema: ChatComponent.chatSchema});
+
+    if (chatId != store.get('id')) {
+      console.error("chat file: chat-" + chatId + " contains a contradicting id: " + store.get('id'));
+    }
+
     this.chatName = store.get('name');
     this.chatType = store.get('type');
     this.chatId = chatId;
@@ -38,10 +50,19 @@ export class ChatComponent implements OnInit {
     console.log("loaded chat with id: " + chatId);
   }
 
-  // TODO: update only last messages and don't load the whole chat file
+  // TODO: get only last x messages and don't load the whole chat file
   updateChat() {
     const store = new Store({name: "chat-" + this.chatId, schema: ChatComponent.chatSchema});
     this.chatMessages = store.get('messages');
+  }
+
+  updateInputBoxMessage(event: any) {
+    this.inputBoxMessage = event.target.value;
+    console.log("input msg: " + this.inputBoxMessage);
+  }
+
+  sendMessage() {
+    console.log("sendMessage: " + this.inputBoxMessage);
   }
 
   // TODO: fix this schema

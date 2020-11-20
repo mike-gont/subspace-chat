@@ -23,7 +23,7 @@ export class ChatsListComponent implements OnInit {
     this.chatsList = store.get('chats');
   }
 
-  onSelect(chatId : number) {
+  onChatSelect(chatId : number) {
     console.log("selected chat: " + chatId);
     this.homeComponent.setCurrentChatId(chatId);
   }

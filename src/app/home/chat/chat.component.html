@@ -4,11 +4,23 @@
   </div>
 </div>
 
-<div *ngIf="chatId != undefined" class="chat-view">
-  <div class="message-item" *ngFor="let msg of chatMessages">
-    <p class="">{{msg.from}}</p>
-    <p class="">{{msg.date}}</p>
-    <p class="">{{msg.text}}</p>
+<div *ngIf="chatId != undefined" class="chat-container">
+  <div class="chat-log">
+    <div *ngFor="let msg of chatMessages">
+      <!-- <p class="">{{msg.from}}</p> -->
+      <!-- <p class="">{{msg.date}}</p> -->
+      <div [className]="msg.from_id == myUserId ? 'chat-message--right' : 'chat-message'">
+        <p class="chat-message__text">{{msg.text}}</p>
+      </div>
+    </div>
   </div>
-  <br>
+
+  <form class="chat-input-area">
+    <input type="text"
+      class="chat-input-area__input" 
+      placeholder="Write something..."
+      (keyup)=updateInputBoxMessage($event)
+      (keydown.enter)=sendMessage()>
+    <button type="submit" class="chat-input-area__submit-button" (click)=sendMessage()></button>
+  </form>
 </div>

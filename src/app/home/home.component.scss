@@ -4,18 +4,18 @@
 
 .home-container {
   display: flex;
-  height: 100%;
+  height: 100vh;
 }
 
-.chats-list-container {
+.chats-list-component-container {
   flex-grow: 1;
   min-width: 300px;
-  max-width: 400px;
+  max-width: 500px;
   background-color: #222831;
   color: lightgray;
 }
 
-.chat-container {
+.chat-component-container {
   flex-grow: 2;
   background-color: #252e3d;
 }
