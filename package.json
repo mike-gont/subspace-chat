@@ -1,9 +1,9 @@
 {
-  "name": "dax-one",
+  "name": "subspace-chat",
   "version": "0.0.0",
   "description": "",
   "author": {
-    "name": "Michael Gont",
+    "name": "Mike Gont",
     "email": "mike.gont@gmail.com"
   },
   "main": "main.js",

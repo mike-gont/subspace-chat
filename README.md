@@ -1,4 +1,7 @@
-# Dax
+# Subspace Chat
+
+A serverless chat application
+
 
 
 ## Setup

@@ -1,5 +1,5 @@
 {
-  "productName": "angular-electron",
+  "productName": "subspace-chat",
   "directories": {
     "output": "release/"
   },
