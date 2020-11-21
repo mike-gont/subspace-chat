@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HomeComponent } from '../home.component';
-
-const Store = require('electron-store');
+import { ChatManagerService, ChatsList } from '../../chat-manager.service';
 
 @Component({
   selector: 'app-chats-list',
@@ -10,35 +8,21 @@ const Store = require('electron-store');
 })
 export class ChatsListComponent implements OnInit {
 
-  chatsList = [];
+  chatsList: ChatsList;
 
-  constructor(private homeComponent: HomeComponent) { }
+  constructor(private chatManager: ChatManagerService) { }
 
   ngOnInit(): void {
-    this.loadChatList();
+    this.loadChatsList();
   }
 
-  loadChatList() {
-    const store = new Store({name: "user-data/chats-list", schema: ChatsListComponent.chatsListSchema});
-    this.chatsList = store.get('chats');
+  loadChatsList() {
+    this.chatsList = this.chatManager.getChatsList();
   }
 
   onChatSelect(chatId : number) {
     console.log("selected chat: " + chatId);
-    this.homeComponent.setCurrentChatId(chatId);
+    this.chatManager.setCurrentChatId(chatId);
   }
-
-  static chatsListSchema = {
-    chats: {
-      type: 'array',
-      items: {
-        id: { type: 'number' },
-        name: { type: 'string' },
-        last_msg_from: { type: 'string' },
-        last_msg_date: { type: 'string' },
-        last_msg_text: { type: 'string' }
-      }
-    }
-  };
     
 }

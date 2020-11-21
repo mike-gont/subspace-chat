@@ -1,15 +1,15 @@
-<div *ngIf="chatId == undefined" class="no-chat-selected-view">
+<div *ngIf="chatData == undefined" class="no-chat-selected-view">
   <div class="empty-chat-view-label">
     Please select a chat
   </div>
 </div>
 
-<div *ngIf="chatId != undefined" class="chat-container">
+<div *ngIf="chatData != undefined" class="chat-container">
   <div class="chat-log">
-    <div *ngFor="let msg of chatMessages">
+    <div *ngFor="let msg of chatData.messages">
       <!-- <p class="">{{msg.from}}</p> -->
       <!-- <p class="">{{msg.date}}</p> -->
-      <div [className]="msg.from_id == myUserId ? 'chat-message--right' : 'chat-message'">
+      <div [className]="msg.from_id == getMyUserId() ? 'chat-message--right' : 'chat-message'">
         <p class="chat-message__text">{{msg.text}}</p>
       </div>
     </div>
