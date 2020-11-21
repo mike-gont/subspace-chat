@@ -13,7 +13,7 @@ export class ChatComponent implements OnInit {
   chatData: ChatData;
 
   inputBoxMessage: string;
-  static numOfLastMessages: number = 5;
+  static numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
     // loadChat when the currentChatId changes
@@ -31,8 +31,11 @@ export class ChatComponent implements OnInit {
   }
 
   loadChat(id: number) {
-    // this.chatData = this.chatManager.getChat(id);
-    this.chatData = this.chatManager.getChatPartial(id, ChatComponent.numOfLastMessages);
+    this.chatData = this.chatManager.getChatPartial(id, ChatComponent.numMessagesToLoad);
+  }
+
+  loadFullChat() {
+    this.chatData = this.chatManager.getChat(this.chatData.id);
   }
 
   // TODO: get only last x messages and don't load the whole chat file

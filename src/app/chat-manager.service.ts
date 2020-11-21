@@ -82,7 +82,7 @@ export class ChatManagerService {
       name: this.chatsContainer.getChat(id).name,
       type: this.chatsContainer.getChat(id).type,
       id: this.chatsContainer.getChat(id).id,
-      messages: this.chatsContainer.getChat(id).messages.slice(1).slice(-numMessages)
+      messages: this.chatsContainer.getChat(id).messages.slice(-numMessages)
     }
   }
 

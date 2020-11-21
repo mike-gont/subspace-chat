@@ -6,6 +6,7 @@
 
 <div *ngIf="chatData != undefined" class="chat-container">
   <div class="chat-log">
+    <a class="button is-small is-dark" (click)=loadFullChat()>Load All Messages</a>
     <div *ngFor="let msg of chatData.messages">
       <!-- <p class="">{{msg.from}}</p> -->
       <!-- <p class="">{{msg.date}}</p> -->
