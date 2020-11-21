@@ -19,7 +19,7 @@ export class ChatsListComponent implements OnInit {
   }
 
   loadChatList() {
-    const store = new Store({name: "chats-list", schema: ChatsListComponent.chatsListSchema});
+    const store = new Store({name: "user-data/chats-list", schema: ChatsListComponent.chatsListSchema});
     this.chatsList = store.get('chats');
   }
 

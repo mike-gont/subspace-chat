@@ -32,8 +32,8 @@ export class ChatComponent implements OnInit {
   }
 
   loadChat(chatId: number) {
-    // TODO: use service to do the json operations
-    const store = new Store({name: "chat-" + chatId, schema: ChatComponent.chatSchema});
+    // TODO: use ChatManager
+    const store = new Store({name: "user-data/chats/chat-" + chatId, schema: ChatComponent.chatSchema});
 
     if (chatId != store.get('id')) {
       console.error("chat file: chat-" + chatId + " contains a contradicting id: " + store.get('id'));
@@ -50,6 +50,7 @@ export class ChatComponent implements OnInit {
     console.log("loaded chat with id: " + chatId);
   }
 
+  // TODO: use ChatManager
   // TODO: get only last x messages and don't load the whole chat file
   updateChat() {
     const store = new Store({name: "chat-" + this.chatId, schema: ChatComponent.chatSchema});
