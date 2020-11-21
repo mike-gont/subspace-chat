@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from '../../user-manager.service';
 import { ChatManagerService, ChatData } from '../../chat-manager.service';
-import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-chat',
@@ -16,17 +15,24 @@ export class ChatComponent implements OnInit {
   static numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
-    // loat current chat when the currentChatId changes
+    // load current chat when the currentChatId changes
     chatManager.currentChatId$.subscribe(
       id => {
         this.loadChat(id);
-      });
+      }
+    );
+    // clear chat when switching users
+    userManager.activeUserId$.subscribe(
+      id => {
+        this.chatData = undefined;
+      }
+    );
   }
 
   ngOnInit(): void {
   }
 
-  getMyUserId(): number {
+  getMyUserId(): string {
     return this.userManager.getUserId();
   }
 

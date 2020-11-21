@@ -9,7 +9,7 @@ const Store = require('electron-store');
 })
 export class ChatManagerService {
 
-  chatsList: ChatsList;
+  chatsList: ChatsListItem[];
   chatsContainer: ChatsContainer;
   currentChatId: number;
 
@@ -22,7 +22,7 @@ export class ChatManagerService {
         this.onUserSwitch();
       });
 
-    if (userManager.activeUserDefined) {
+    if (userManager.isConfigured) {
       this.loadChatsListFromFile();
     }
   }
@@ -46,7 +46,7 @@ export class ChatManagerService {
     return true;
   }
 
-  getChatsList(): ChatsList {
+  getChatsList(): ChatsListItem[] {
     return this.chatsList;
   }
 
@@ -119,6 +119,7 @@ export class ChatManagerService {
   onUserSwitch() {
     // TODO: save unsaved chats state before switching everything
     // this.saveChatsToFiles();
+    this.chatsList = [];
     this.chatsContainer.clear();
     this.loadChatsListFromFile();
   }
@@ -167,7 +168,7 @@ export interface MessageData {
   type: string;
   date: string;
   from: string;
-  from_id: number;
+  from_id: string;
   text: string;
 }
 
@@ -199,12 +200,14 @@ class ChatsContainer {
   }
 }
 
-export interface ChatsList {
-  chats: {
-    id: number,
-    name: string,
-    last_msg_from: string,
-    last_msg_date: string,
-    last_msg_text: string
-  };
+// export interface ChatsList {
+//   chats: ChatsListItem[];
+// }
+
+export interface ChatsListItem {
+  id: number,
+  name: string,
+  last_msg_from: string,
+  last_msg_date: string,
+  last_msg_text: string
 }

@@ -9,37 +9,38 @@ const Store = require('electron-store');
 export class UserManagerService {
 
   usersContainer: UsersContainer;
-  activeUserId: number;
-  activeUserDefined: boolean;
+  activeUserId: string;
+  isConfigured: boolean;
 
   constructor() {
-    this.activeUserDefined = false;
+    this.isConfigured = false;
     this.usersContainer = new UsersContainer;
-    let load_res: boolean = this.loadUsersFromFile();
-    if (!load_res) {
-      // TODO: implement
-    }
+    this.init();
   }
 
   // Observable activeUserId source and stream
-  private activeUserIdSource = new Subject<number>();
+  private activeUserIdSource = new Subject<string>();
   activeUserId$ = this.activeUserIdSource.asObservable();
-  setActiveUser(id: number) {
-    this.activeUserDefined = true;
+  setActiveUser(id: string) {
     this.activeUserId = id;
     this.activeUserIdSource.next(id);
   }
+  
+  init() {
+    let load_res: boolean = this.loadUsersFromFile();
+    this.isConfigured = load_res;
+  }
 
   getUserName(): string {
-    if (!this.activeUserDefined) {
+    if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
     }
     return this.usersContainer.getUser(this.activeUserId).name;
   }
 
-  getUserId(): number {
-    if (!this.activeUserDefined) {
+  getUserId(): string {
+    if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
     }
@@ -50,15 +51,22 @@ export class UserManagerService {
     return "user-data/" + this.getUserName();
   }
 
-  setUser(user: UserData) {
-    this.usersContainer.setUser(user);
+  addUser(name: string): void {
+    const id: string = UserManagerService.generateId();
+    this.usersContainer.setUser({ name: name, id:id });
+    this.switchUser(id);
   }
 
-  saveUsersToFile() {
+  switchUser(id: string): void {
+    this.setActiveUser(id);
+    this.saveUsersToFile();
+  }
+
+  saveUsersToFile(): void {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     store.set('active_user_id', this.activeUserId);
-    store.set('users', this.usersContainer.users);
+    store.set('users', this.usersContainer.getUsersArray());
     console.log("saved users to file");
   }
 
@@ -79,12 +87,19 @@ export class UserManagerService {
     return true;
   }
 
+  static generateId (): string {
+    // Math.random should be unique because of its seeding algorithm.
+    // Convert it to base 36 (numbers + letters), and grab the first 10 characters
+    // after the decimal.
+    return Math.random().toString(36).substr(2, 10);
+  };
+
   static usersListSchema = {
-    active_user_id: { type: 'number' },
+    active_user_id: { type: 'string' },
     users: {
       type: 'array',
       items: {
-        id: { type: 'number' },
+        id: { type: 'string' },
         name: { type: 'string' }
       }
     }
@@ -92,19 +107,19 @@ export class UserManagerService {
 
 }
 
-interface UserData {
+export interface UserData {
   name: string;
-  id: number;
+  id: string;
 }
 
 class UsersContainer {
-  users: { [id: number] : UserData };
+  users: { [id: string] : UserData };
 
   constructor() {
     this.users = {};
   }
 
-  getUser(id: number): UserData {
+  getUser(id: string): UserData {
     if (!this.userExists(id)) {
       console.error("UsersContainer::getUser - the container doesn't contain user with id: " + id);
       return undefined;
@@ -116,7 +131,11 @@ class UsersContainer {
     this.users[user.id] = user;
   }
 
-  userExists(id: number): boolean {
+  userExists(id: string): boolean {
     return this.users.hasOwnProperty(id);
+  }
+
+  getUsersArray(): UserData[] {
+    return Object.values(this.users);
   }
 }

@@ -1,0 +1,40 @@
+<div class="new-user-page-container">
+
+  <div class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+
+      <article class="message">
+        <div class="message-header">
+          <p>Create New User</p>
+          <button class="delete" (click)=closePage()></button>
+        </div>
+        <div class="message-body">
+
+          <div class="field">
+            <p class="control has-icons-left has-icons-right">
+              <input #username class="input" type="username" placeholder="Username">
+            </p>
+          </div>
+          <div class="field">
+            <p class="control has-icons-left">
+              <input class="input" type="password" placeholder="Password">
+            </p>
+          </div>
+          <div class="field">
+            <p class="control">
+              <button class="button is-primary" (click)=submitNewUser(username.value)>
+                Submit
+              </button>
+            </p>
+          </div>
+
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+ 
+
+</div>

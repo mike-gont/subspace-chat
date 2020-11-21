@@ -7,7 +7,7 @@
   height: 100vh;
 }
 
-.chats-list-component-container {
+.home-left-container {
   flex-grow: 1;
   min-width: 300px;
   max-width: 500px;
@@ -15,7 +15,7 @@
   color: lightgray;
 }
 
-.chat-component-container {
+.home-right-container {
   flex-grow: 2;
   background-color: #252e3d;
 }

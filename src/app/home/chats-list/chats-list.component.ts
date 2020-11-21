@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ChatManagerService, ChatsList } from '../../chat-manager.service';
+import { UserManagerService } from 'app/user-manager.service';
+import { ChatManagerService, ChatsListItem } from '../../chat-manager.service';
 
 @Component({
   selector: 'app-chats-list',
@@ -8,19 +9,31 @@ import { ChatManagerService, ChatsList } from '../../chat-manager.service';
 })
 export class ChatsListComponent implements OnInit {
 
-  chatsList: ChatsList;
+  chatsList: ChatsListItem[];
 
-  constructor(private chatManager: ChatManagerService) { }
+  constructor(private chatManager: ChatManagerService, private userManager: UserManagerService) {
+    // subscribe to the active user id and do stuff when it changes
+    userManager.activeUserId$.subscribe(
+      activeUserId => {
+        this.refresh();
+      });
+  }
 
   ngOnInit(): void {
     this.loadChatsList();
   }
 
-  loadChatsList() {
-    this.chatsList = this.chatManager.getChatsList();
+  refresh(): void {
+    console.log("refresh");
+    this.loadChatsList();
   }
 
-  onChatSelect(chatId : number) {
+  loadChatsList(): void {
+    this.chatsList = this.chatManager.getChatsList();
+    console.log("loaded chats list: ", this.chatsList);
+  }
+
+  onChatSelect(chatId : number): void {
     console.log("selected chat: " + chatId);
     this.chatManager.setCurrentChatId(chatId);
   }
