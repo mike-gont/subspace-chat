@@ -16,10 +16,10 @@ export class ChatComponent implements OnInit {
   static numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
-    // loadChat when the currentChatId changes
+    // loat current chat when the currentChatId changes
     chatManager.currentChatId$.subscribe(
-      chatId => {
-        this.loadChat(chatId);
+      id => {
+        this.loadChat(id);
       });
   }
 

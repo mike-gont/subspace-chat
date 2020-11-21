@@ -11,34 +11,50 @@ export class ChatManagerService {
 
   chatsList: ChatsList;
   chatsContainer: ChatsContainer;
+  currentChatId: number;
 
   constructor(private userManager: UserManagerService) {
-    this.loadChatsList();
     this.chatsContainer = new ChatsContainer;
+
+    // subscribe to the active user id and do stuff when it changes
+    userManager.activeUserId$.subscribe(
+      activeUserId => {
+        this.onUserSwitch();
+      });
+
+    if (userManager.activeUserDefined) {
+      this.loadChatsListFromFile();
+    }
   }
 
-  // Observable chatId source and stream
+  // Observable current chat id source and stream
   private currentChatIdSource = new Subject<number>();
   currentChatId$ = this.currentChatIdSource.asObservable();
-  setCurrentChatId(chatId: number) {
-    this.currentChatIdSource.next(chatId);
+  setCurrentChatId(id: number) {
+    this.currentChatId = id;
+    this.currentChatIdSource.next(id);
   }
 
-  loadChatsList() {
+  loadChatsListFromFile(): boolean {
     const fileName = this.userManager.getUserDir() + "/chats-list";
-    const store = new Store({name: fileName, schema: ChatManagerService.chatsListSchema});
-    this.chatsList =  store.get('chats');
+    const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
+    if (!store.has('chats')) {
+      console.warn("chats list file is not availble / invalid: " + fileName);
+      return false;
+    }
+    this.chatsList = store.get('chats');
+    return true;
   }
 
-  getChatsList() {
+  getChatsList(): ChatsList {
     return this.chatsList;
   }
 
-  loadChat(id: number): boolean {
+  loadChatFromFile(id: number): boolean {
     const fileName = this.userManager.getUserDir() + "/chats/chat-" + id;
-    const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
+    const store = new Store({ name: fileName, schema: ChatManagerService.chatSchema });
 
-    if (store.get('id') == undefined) {
+    if (!store.has('id') || !store.has('name') || !store.has('type') || !store.has('messages')) {
       console.error("couldn't load chat with id " + id + ", file: " + fileName);
       return false;
     }
@@ -53,17 +69,14 @@ export class ChatManagerService {
       messages: store.get('messages')
     };
 
-    if (chat.messages == undefined) {
-      console.error("failed loading messages for chat with id: " + id);
-    }
-    this.chatsContainer.setChat(id, chat);
+    this.chatsContainer.setChat(chat);
     console.log("loaded chat with id: " + id);
     return true;
   }
 
   getChat(id: number): ChatData {
     if (!this.chatsContainer.chatExists(id)) {
-      let res = this.loadChat(id);
+      let res = this.loadChatFromFile(id);
       if (!res) {
         return undefined;
       }
@@ -73,7 +86,7 @@ export class ChatManagerService {
 
   getChatPartial(id: number, numMessages: number): ChatData {
     if (!this.chatsContainer.chatExists(id)) {
-      let res = this.loadChat(id);
+      let res = this.loadChatFromFile(id);
       if (!res) {
         return undefined;
       }
@@ -91,9 +104,23 @@ export class ChatManagerService {
     console.error("not implemented");
   }
 
-  saveChat(id: number) {
+  saveChatToFile(id: number) {
     // TODO: implement
     console.error("not implemented");
+    // TODO: we want to append messages from the state to the chat file
+    // and not write the file from scratch, as the chat from the state can be partial.
+
+    // const fileName = this.userManager.getUserDir() + "/chats/chat-" + id;
+    // const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
+    // ...
+    // console.log("saved chat " + id + " to file: " + fileName);
+  }
+
+  onUserSwitch() {
+    // TODO: save unsaved chats state before switching everything
+    // this.saveChatsToFiles();
+    this.chatsContainer.clear();
+    this.loadChatsListFromFile();
   }
 
   static chatsListSchema = {
@@ -145,22 +172,30 @@ export interface MessageData {
 }
 
 class ChatsContainer {
-  chats: { [id: number] : ChatData };
+  chats: { [id: number]: ChatData };
 
   constructor() {
     this.chats = {};
   }
 
   getChat(id: number): ChatData {
+    if (!this.chatExists(id)) {
+      console.error("ChatsContainer::getChat - the container doesn't contain chat with id: " + id);
+      return undefined;
+    }
     return this.chats[id];
   }
 
-  setChat(id: number, chat: ChatData) {
-    this.chats[id] = chat;
+  setChat(chat: ChatData) {
+    this.chats[chat.id] = chat;
   }
 
   chatExists(id: number): boolean {
-    return id in this.chats;
+    return this.chats.hasOwnProperty(id);
+  }
+
+  clear() {
+    this.chats = {}; // TODO: should delete instead of leaving for GC?
   }
 }
 
