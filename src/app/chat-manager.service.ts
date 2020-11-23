@@ -12,6 +12,7 @@ export class ChatManagerService {
   chatsList: ChatsListItem[];
   chatsContainer: ChatsContainer;
   currentChatId: number;
+  numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService) {
     this.chatsContainer = new ChatsContainer;
@@ -50,7 +51,7 @@ export class ChatManagerService {
     return this.chatsList;
   }
 
-  loadChatFromFile(id: number): boolean {
+  loadChatFromFile(id: number, loadFully: boolean): boolean {
     const fileName = this.userManager.getUserDir() + "/chats/chat-" + id;
     const store = new Store({ name: fileName, schema: ChatManagerService.chatSchema });
 
@@ -58,25 +59,33 @@ export class ChatManagerService {
       console.error("couldn't load chat with id " + id + ", file: " + fileName);
       return false;
     }
-    if (id != store.get('id')) {
-      console.warn("chat file: " + fileName + " contains a contradicting id: " + store.get('id'));
-    }
 
     let chat: ChatData = {
       name: store.get('name'),
       type: store.get('type'),
       id: id,
-      messages: store.get('messages')
+      messages: [],
+      full: false
     };
+
+    // TODO: I assume store.get('messages') loads all messages to memory. check how this can be avoided
+    if (loadFully || store.get('messages').length <= this.numMessagesToLoad) {
+      chat.messages = store.get('messages');
+      chat.full = true;
+    }
+    else {
+      chat.messages = store.get('messages').slice(-this.numMessagesToLoad);
+      chat.full = false;
+    }
 
     this.chatsContainer.setChat(chat);
     console.log("loaded chat with id: " + id);
     return true;
   }
 
-  getChat(id: number): ChatData {
-    if (!this.chatsContainer.chatExists(id)) {
-      let res = this.loadChatFromFile(id);
+  getFullChat(id: number): ChatData {
+    if (!this.chatsContainer.fullChatExists(id)) {
+      let res = this.loadChatFromFile(id, true);
       if (!res) {
         return undefined;
       }
@@ -84,19 +93,14 @@ export class ChatManagerService {
     return this.chatsContainer.getChat(id);
   }
 
-  getChatPartial(id: number, numMessages: number): ChatData {
+  getChat(id: number): ChatData {
     if (!this.chatsContainer.chatExists(id)) {
-      let res = this.loadChatFromFile(id);
+      let res = this.loadChatFromFile(id, false);
       if (!res) {
         return undefined;
       }
     }
-    return {
-      name: this.chatsContainer.getChat(id).name,
-      type: this.chatsContainer.getChat(id).type,
-      id: this.chatsContainer.getChat(id).id,
-      messages: this.chatsContainer.getChat(id).messages.slice(-numMessages)
-    }
+    return this.chatsContainer.getChat(id);
   }
 
   updateChat(id: number, messages: MessageData[]) {
@@ -161,6 +165,7 @@ export interface ChatData {
   type: string;
   id: number;
   messages: MessageData[];
+  full: boolean;
 }
 
 export interface MessageData {
@@ -193,6 +198,10 @@ class ChatsContainer {
 
   chatExists(id: number): boolean {
     return this.chats.hasOwnProperty(id);
+  }
+
+  fullChatExists(id: number): boolean {
+    return this.chats.hasOwnProperty(id) && this.chats[id].full;
   }
 
   clear() {

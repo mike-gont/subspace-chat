@@ -14,13 +14,12 @@ export class ChatComponent implements OnInit {
   chatData: ChatData;
 
   inputBoxMessage: string;
-  static numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
     // load current chat when the currentChatId changes
     chatManager.currentChatId$.subscribe(
       id => {
-        this.loadChat(id);
+        this.loadChat();
       }
     );
     // clear chat when switching users
@@ -43,12 +42,12 @@ export class ChatComponent implements OnInit {
     return this.userManager.getUserId();
   }
 
-  loadChat(id: number): void {
-    this.chatData = this.chatManager.getChatPartial(id, ChatComponent.numMessagesToLoad);
+  loadChat(): void {
+    this.chatData = this.chatManager.getChat(this.chatManager.currentChatId);
   }
 
   loadFullChat(): void {
-    this.chatData = this.chatManager.getChat(this.chatData.id);
+    this.chatData = this.chatManager.getFullChat(this.chatManager.currentChatId);
   }
 
   updateInputBoxMessage(event: any): void {
