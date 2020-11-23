@@ -11,29 +11,34 @@ export class ChatManagerService {
 
   chatsList: ChatsListItem[];
   chatsContainer: ChatsContainer;
-  currentChatId: number;
+  activeChatId: number;
   numMessagesToLoad: number = 100;
 
   constructor(private userManager: UserManagerService) {
     this.chatsContainer = new ChatsContainer;
 
-    // subscribe to the active user id and do stuff when it changes
-    userManager.activeUserId$.subscribe(
-      activeUserId => {
-        this.onUserSwitch();
-      });
+    this.observeActiveUserId();
 
     if (userManager.isConfigured) {
       this.loadChatsListFromFile();
     }
   }
 
-  // Observable current chat id source and stream
-  private currentChatIdSource = new Subject<number>();
-  currentChatId$ = this.currentChatIdSource.asObservable();
-  setCurrentChatId(id: number) {
-    this.currentChatId = id;
-    this.currentChatIdSource.next(id);
+  // Observable active chat id source and stream
+  private activeChatIdSource = new Subject<number>();
+  activeChatId$ = this.activeChatIdSource.asObservable();
+  setActiveChatId(id: number) {
+    this.activeChatId = id;
+    this.activeChatIdSource.next(id);
+  }
+
+  observeActiveUserId(): void {
+    // subscribe to the active user id and do stuff when it changes
+    this.userManager.activeUserId$.subscribe(
+      activeUserId => {
+        this.onUserSwitch(); 
+      }
+    );
   }
 
   loadChatsListFromFile(): boolean {

@@ -15,20 +15,16 @@ export class UserManagerService {
   constructor() {
     this.isConfigured = false;
     this.usersContainer = new UsersContainer;
-    this.init();
+    let load_res: boolean = this.loadDataFromFile();
+    this.isConfigured = load_res;
   }
 
   // Observable activeUserId source and stream
   private activeUserIdSource = new Subject<string>();
   activeUserId$ = this.activeUserIdSource.asObservable();
-  setActiveUser(id: string) {
+  setActiveUser(id: string): void {
     this.activeUserId = id;
     this.activeUserIdSource.next(id);
-  }
-  
-  init() {
-    let load_res: boolean = this.loadUsersFromFile();
-    this.isConfigured = load_res;
   }
 
   getUserName(): string {
@@ -55,22 +51,29 @@ export class UserManagerService {
     const id: string = UserManagerService.generateId();
     this.usersContainer.setUser({ name: name, id:id });
     this.switchUser(id);
+    this.saveUsersToFile();
   }
 
   switchUser(id: string): void {
     this.setActiveUser(id);
-    this.saveUsersToFile();
+    this.saveActiveUserToFile();
   }
 
   saveUsersToFile(): void {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
-    store.set('active_user_id', this.activeUserId);
     store.set('users', this.usersContainer.getUsersArray());
     console.log("saved users to file");
   }
 
-  loadUsersFromFile(): boolean {
+  saveActiveUserToFile(): void {
+    const fileName = "user-data/users";
+    const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
+    store.set('active_user_id', this.activeUserId);
+    console.log("saved active user id to file");
+  }
+
+  loadDataFromFile(): boolean {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     if (!store.has('active_user_id') || !store.has('users')) {

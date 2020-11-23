@@ -16,18 +16,8 @@ export class ChatComponent implements OnInit {
   inputBoxMessage: string;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
-    // load current chat when the currentChatId changes
-    chatManager.currentChatId$.subscribe(
-      id => {
-        this.loadChat();
-      }
-    );
-    // clear chat when switching users
-    userManager.activeUserId$.subscribe(
-      id => {
-        this.chatData = undefined;
-      }
-    );
+    this.observeActiveChatId();
+    this.observeActiveUserId();
   }
 
   ngOnInit(): void {
@@ -38,16 +28,34 @@ export class ChatComponent implements OnInit {
     this.scrollToBottom();
   }
 
+  observeActiveChatId(): void {
+    // load active chat when the activeChatId changes
+    this.chatManager.activeChatId$.subscribe(
+      id => {
+        this.loadChat();
+      }
+    );
+  }
+
+  observeActiveUserId(): void {
+    // clear chat when switching users
+    this.userManager.activeUserId$.subscribe(
+      id => {
+        this.chatData = undefined;
+      }
+    );
+  }
+
   getMyUserId(): string {
     return this.userManager.getUserId();
   }
 
   loadChat(): void {
-    this.chatData = this.chatManager.getChat(this.chatManager.currentChatId);
+    this.chatData = this.chatManager.getChat(this.chatManager.activeChatId);
   }
 
   loadFullChat(): void {
-    this.chatData = this.chatManager.getFullChat(this.chatManager.currentChatId);
+    this.chatData = this.chatManager.getFullChat(this.chatManager.activeChatId);
   }
 
   updateInputBoxMessage(event: any): void {

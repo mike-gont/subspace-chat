@@ -12,15 +12,20 @@ export class ChatsListComponent implements OnInit {
   chatsList: ChatsListItem[];
 
   constructor(private chatManager: ChatManagerService, private userManager: UserManagerService) {
-    // subscribe to the active user id and do stuff when it changes
-    userManager.activeUserId$.subscribe(
-      activeUserId => {
-        this.refresh();
-      });
+    this.observeActiveUserId();
   }
 
   ngOnInit(): void {
     this.loadChatsList();
+  }
+
+  observeActiveUserId(): void {
+    // refresh chats list when switching users
+    this.userManager.activeUserId$.subscribe(
+      id => {
+        this.refresh();
+      }
+    );
   }
 
   refresh(): void {
@@ -35,7 +40,7 @@ export class ChatsListComponent implements OnInit {
 
   onChatSelect(chatId : number): void {
     console.log("selected chat: " + chatId);
-    this.chatManager.setCurrentChatId(chatId);
+    this.chatManager.setActiveChatId(chatId);
   }
     
 }
