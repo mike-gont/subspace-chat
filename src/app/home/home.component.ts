@@ -27,12 +27,4 @@ export class HomeComponent implements OnInit {
     this.activePopUp = undefined;
   }
 
-  switchUser(id: string): void {
-    this.userManager.switchUser(id);
-  }
-
-  getUsers(): UserData[] {
-    return Object.values(this.userManager.usersContainer.users);
-  }
-
 }

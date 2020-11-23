@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { UserManagerService } from '../../user-manager.service';
-import { ChatManagerService, ChatData } from '../../chat-manager.service';
+import { UserManagerService } from 'app/user-manager.service';
+import { ChatManagerService, ChatData } from 'app/chat-manager.service';
+import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-chat',
@@ -8,6 +9,7 @@ import { ChatManagerService, ChatData } from '../../chat-manager.service';
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit {
+  @ViewChild('chatview') private chatDiv: ElementRef;
 
   chatData: ChatData;
 
@@ -30,34 +32,38 @@ export class ChatComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.scrollToBottom();
+  }
+
+  ngAfterViewChecked(): void {
+    this.scrollToBottom();
   }
 
   getMyUserId(): string {
     return this.userManager.getUserId();
   }
 
-  loadChat(id: number) {
+  loadChat(id: number): void {
     this.chatData = this.chatManager.getChatPartial(id, ChatComponent.numMessagesToLoad);
   }
 
-  loadFullChat() {
+  loadFullChat(): void {
     this.chatData = this.chatManager.getChat(this.chatData.id);
   }
 
-  // TODO: get only last x messages and don't load the whole chat file
-  updateChat() {
-    this.chatData.messages = this.chatManager.getChat(this.chatData.id).messages;
-  }
-
-  updateInputBoxMessage(event: any) {
+  updateInputBoxMessage(event: any): void {
     this.inputBoxMessage = event.target.value;
     console.log("input msg: " + this.inputBoxMessage);
   }
 
-  sendMessage() {
+  sendMessage(): void {
     console.log("sendMessage: " + this.inputBoxMessage);
   }
 
-
+  scrollToBottom(): void {
+    try {
+        this.chatDiv.nativeElement.scrollTop = this.chatDiv.nativeElement.scrollHeight;
+    } catch(err) { }
+  }
 
 }

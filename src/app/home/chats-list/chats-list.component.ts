@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
-import { ChatManagerService, ChatsListItem } from '../../chat-manager.service';
+import { ChatManagerService, ChatsListItem } from 'app/chat-manager.service';
 
 @Component({
   selector: 'app-chats-list',

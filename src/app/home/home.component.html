@@ -1,26 +1,8 @@
  <div class="home-container">
   <app-new-user-page *ngIf="activePopUp == 'new-user-page'"></app-new-user-page>
   <div class="home-left-container">
-
-    <!-- TODO: move to a new component -->
-    <div class="">
-      <div>
-        <button class="button is-link" (click)=showNewUserPage()>Create New User</button>
-      </div>
-
-      <div class="control">
-        <div class="select">
-          <select #userselector>
-            <option *ngFor="let user of getUsers()" [value]="user.id">{{ user.name }}</option>
-          </select>
-          <button class="button" (click)=switchUser(userselector.value)>Switch</button>
-        </div>
-      </div>
-    </div>
-    <!-- ----------------------------- -->
-
+    <app-nav-bar></app-nav-bar>
     <app-chats-list></app-chats-list>
-
   </div>
 
   <div class="home-right-container">

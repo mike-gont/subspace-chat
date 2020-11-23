@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
-import { HomeComponent } from '../home.component';
+import { HomeComponent } from 'app/home/home.component';
 
 @Component({
   selector: 'app-new-user-page',
   templateUrl: './new-user-page.component.html',
-  // styleUrls: ['./new-user-page.component.scss']
+  styleUrls: ['./new-user-page.component.scss']
 })
 export class NewUserPageComponent implements OnInit {
 

@@ -6,7 +6,7 @@
 </div>
 
 <div *ngIf="chatData != undefined" class="chat-container">
-  <div class="chat-log">
+  <div class="chat-log" #chatview>
     <a class="button is-small is-dark" (click)=loadFullChat()>Load All Messages</a>
     <div *ngFor="let msg of chatData.messages">
       <!-- <p class="">{{msg.from}}</p> -->

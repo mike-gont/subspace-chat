@@ -87,6 +87,10 @@ export class UserManagerService {
     return true;
   }
 
+  getUsers(): UserData[] {
+    return this.usersContainer.getUsersArray();
+  }
+
   static generateId (): string {
     // Math.random should be unique because of its seeding algorithm.
     // Convert it to base 36 (numbers + letters), and grab the first 10 characters
