@@ -132,6 +132,7 @@ export class ChatManagerService {
     this.chatsList = [];
     this.chatsContainer.clear();
     this.loadChatsListFromFile();
+    this.activeChatId = undefined;
   }
 
   setDraft(id: number, str: string): void {

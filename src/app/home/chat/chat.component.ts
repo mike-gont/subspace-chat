@@ -31,10 +31,7 @@ export class ChatComponent implements OnInit {
     // load active chat when the activeChatId changes
     this.chatManager.activeChatId$.subscribe(
       id => {
-        if (this.chatData) {
-          this.onChatSwitch();
-        }
-        this.loadChat();
+        this.onChatSwitch();
       }
     );
   }
@@ -49,15 +46,26 @@ export class ChatComponent implements OnInit {
     );
   }
 
+  onChatSwitch(): void {
+    if (this.chatData) {
+      this.updateDraft(this.inputBoxEl.nativeElement.value);
+      this.chatManager.setDraft(this.chatData.id, this.chatData.draft);
+    }
+    if (this.chatManager.activeChatId) {
+      this.loadChat();
+    }
+  }
+
   getMyUserId(): string {
     return this.userManager.getUserId();
   }
 
   loadChat(): void {
     this.chatData = this.chatManager.getChat(this.chatManager.activeChatId);
-    if (this.inputBoxEl) {
+    if (this.inputBoxEl && this.chatData) {
       this.inputBoxEl.nativeElement.value = this.chatData.draft;
     }
+    this.focusOnInputBox();
   }
 
   loadFullChat(): void {
@@ -69,22 +77,25 @@ export class ChatComponent implements OnInit {
     console.log("updated msg draft: " + this.chatData.draft);
   }
 
+  // TODO: implement
   sendMessage(): void {
     this.updateDraft(this.inputBoxEl.nativeElement.value);
-    // TODO: implement
-    console.log("sendMessage: " + this.chatData.draft);
-    console.warn("sendMessage not implemented");
-  }
+    console.log("sending message: " + this.chatData.draft);
+    this.inputBoxEl.nativeElement.value = "";
 
-  onChatSwitch(): void {
-    this.updateDraft(this.inputBoxEl.nativeElement.value);
-    this.chatManager.setDraft(this.chatData.id, this.chatData.draft);
+    console.warn("sendMessage not implemented");
   }
 
   scrollToBottom(): void {
     try {
         this.chatDiv.nativeElement.scrollTop = this.chatDiv.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  focusOnInputBox(): void {
+    if (this.inputBoxEl) {
+      this.inputBoxEl.nativeElement.focus();
+    }
   }
 
 }
