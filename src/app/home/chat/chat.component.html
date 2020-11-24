@@ -18,11 +18,12 @@
   </div>
 
   <form class="chat-input-area">
-    <input type="text"
+    <input #inputbox type="text"
       class="chat-input-area__input" 
       placeholder="Write something..."
-      (keyup)=updateInputBoxMessage($event)
-      (keydown.enter)=sendMessage()>
+      (keypress.enter)=sendMessage()>
     <button type="submit" class="chat-input-area__submit-button" (click)=sendMessage()></button>
   </form>
 </div>
+
+<!-- (keyup)=updateDraft($event) -->

@@ -10,10 +10,9 @@ import { ViewChild, ElementRef } from '@angular/core';
 })
 export class ChatComponent implements OnInit {
   @ViewChild('chatview') private chatDiv: ElementRef;
+  @ViewChild('inputbox') private inputBoxEl: ElementRef;
 
   chatData: ChatData;
-
-  inputBoxMessage: string;
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
     this.observeActiveChatId();
@@ -32,6 +31,9 @@ export class ChatComponent implements OnInit {
     // load active chat when the activeChatId changes
     this.chatManager.activeChatId$.subscribe(
       id => {
+        if (this.chatData) {
+          this.onChatSwitch();
+        }
         this.loadChat();
       }
     );
@@ -41,6 +43,7 @@ export class ChatComponent implements OnInit {
     // clear chat when switching users
     this.userManager.activeUserId$.subscribe(
       id => {
+        this.onChatSwitch();
         this.chatData = undefined;
       }
     );
@@ -52,19 +55,30 @@ export class ChatComponent implements OnInit {
 
   loadChat(): void {
     this.chatData = this.chatManager.getChat(this.chatManager.activeChatId);
+    if (this.inputBoxEl) {
+      this.inputBoxEl.nativeElement.value = this.chatData.draft;
+    }
   }
 
   loadFullChat(): void {
     this.chatData = this.chatManager.getFullChat(this.chatManager.activeChatId);
   }
 
-  updateInputBoxMessage(event: any): void {
-    this.inputBoxMessage = event.target.value;
-    console.log("input msg: " + this.inputBoxMessage);
+  updateDraft(str: string): void {
+    this.chatData.draft = str;
+    console.log("updated msg draft: " + this.chatData.draft);
   }
 
   sendMessage(): void {
-    console.log("sendMessage: " + this.inputBoxMessage);
+    this.updateDraft(this.inputBoxEl.nativeElement.value);
+    // TODO: implement
+    console.log("sendMessage: " + this.chatData.draft);
+    console.warn("sendMessage not implemented");
+  }
+
+  onChatSwitch(): void {
+    this.updateDraft(this.inputBoxEl.nativeElement.value);
+    this.chatManager.setDraft(this.chatData.id, this.chatData.draft);
   }
 
   scrollToBottom(): void {

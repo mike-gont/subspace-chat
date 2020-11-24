@@ -39,8 +39,10 @@ export class ChatsListComponent implements OnInit {
   }
 
   onChatSelect(chatId : number): void {
-    console.log("selected chat: " + chatId);
-    this.chatManager.setActiveChatId(chatId);
+    if (chatId != this.chatManager.activeChatId) {
+      console.log("selected chat: " + chatId);
+      this.chatManager.setActiveChatId(chatId);
+    }
   }
     
 }

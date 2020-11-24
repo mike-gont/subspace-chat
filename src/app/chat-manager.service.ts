@@ -70,7 +70,8 @@ export class ChatManagerService {
       type: store.get('type'),
       id: id,
       messages: [],
-      full: false
+      full: false,
+      draft: ""
     };
 
     // TODO: I assume store.get('messages') loads all messages to memory. check how this can be avoided
@@ -115,7 +116,7 @@ export class ChatManagerService {
 
   saveChatToFile(id: number) {
     // TODO: implement
-    console.error("not implemented");
+    console.error("saveChatToFile not implemented");
     // TODO: we want to append messages from the state to the chat file
     // and not write the file from scratch, as the chat from the state can be partial.
 
@@ -131,6 +132,11 @@ export class ChatManagerService {
     this.chatsList = [];
     this.chatsContainer.clear();
     this.loadChatsListFromFile();
+  }
+
+  setDraft(id: number, str: string): void {
+    this.chatsContainer.chats[id].draft = str;
+    console.log("saving draft for chat " + id + ": " + str);
   }
 
   static chatsListSchema = {
@@ -171,6 +177,7 @@ export interface ChatData {
   id: number;
   messages: MessageData[];
   full: boolean;
+  draft: string;
 }
 
 export interface MessageData {
