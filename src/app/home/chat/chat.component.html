@@ -5,7 +5,7 @@
   </div>
 </div>
 
-<div *ngIf="chatData != undefined" class="chat-container">
+<div *ngIf="chatData != undefined" class="chat-container" (click)=focusOnInputBox()>
   <div class="chat-log" #chatview>
     <a class="button is-small is-dark" *ngIf="chatData.full == false" (click)=loadFullChat()>Load All Messages</a>
     <div *ngFor="let msg of chatData.messages">
@@ -18,11 +18,12 @@
   </div>
 
   <form class="chat-input-area">
-    <input type="text"
+    <input #inputbox type="text"
       class="chat-input-area__input" 
       placeholder="Write something..."
-      (keyup)=updateInputBoxMessage($event)
-      (keydown.enter)=sendMessage()>
+      (keypress.enter)=sendMessage()>
     <button type="submit" class="chat-input-area__submit-button" (click)=sendMessage()></button>
   </form>
 </div>
+
+<!-- (keyup)=updateDraft($event) -->

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
-import { ChatManagerService, ChatData } from 'app/chat-manager.service';
+import { ChatManagerService, ChatData, MessageData } from 'app/chat-manager.service';
 import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
@@ -10,24 +10,14 @@ import { ViewChild, ElementRef } from '@angular/core';
 })
 export class ChatComponent implements OnInit {
   @ViewChild('chatview') private chatDiv: ElementRef;
+  @ViewChild('inputbox') private inputBoxEl: ElementRef;
 
   chatData: ChatData;
 
-  inputBoxMessage: string;
-
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
-    // load current chat when the currentChatId changes
-    chatManager.currentChatId$.subscribe(
-      id => {
-        this.loadChat();
-      }
-    );
-    // clear chat when switching users
-    userManager.activeUserId$.subscribe(
-      id => {
-        this.chatData = undefined;
-      }
-    );
+    this.observeActiveChatId();
+    this.observeActiveUserId();
+    this.observeNewMessageFlag();
   }
 
   ngOnInit(): void {
@@ -38,31 +28,104 @@ export class ChatComponent implements OnInit {
     this.scrollToBottom();
   }
 
+  observeActiveChatId(): void {
+    // load active chat when the activeChatId changes
+    this.chatManager.activeChatId$.subscribe(
+      id => {
+        this.onChatSwitch();
+      }
+    );
+  }
+
+  observeActiveUserId(): void {
+    // clear chat when switching users
+    this.userManager.activeUserId$.subscribe(
+      id => {
+        this.onUserSwitch();
+      }
+    );
+  }
+
+  observeNewMessageFlag(): void {
+    this.chatManager.newMessageFlag$.subscribe(
+      id => {
+        // TODO: implement
+      }
+    )
+  }
+
+  onChatSwitch(): void {
+    console.log("chat comp: onChatSwitch");
+    if (this.chatData) {
+      this.updateDraft(this.inputBoxEl.nativeElement.value);
+      this.chatManager.setDraft(this.chatData.id, this.chatData.draft);
+    }
+    if (this.chatManager.activeChatId) {
+      this.loadChat();
+    }
+  }
+
+  onUserSwitch(): void {
+    console.log("chat comp: onUserSwitch");
+    this.chatData = undefined;
+  }
+
   getMyUserId(): string {
-    return this.userManager.getUserId();
+    return this.userManager.getActiveUserId();
   }
 
   loadChat(): void {
-    this.chatData = this.chatManager.getChat(this.chatManager.currentChatId);
+    this.chatData = this.chatManager.getChat(this.chatManager.activeChatId);
+    if (this.inputBoxEl && this.chatData) {
+      this.inputBoxEl.nativeElement.value = this.chatData.draft;
+    }
+    this.focusOnInputBox();
   }
 
   loadFullChat(): void {
-    this.chatData = this.chatManager.getFullChat(this.chatManager.currentChatId);
+    this.chatData = this.chatManager.getFullChat(this.chatManager.activeChatId);
   }
 
-  updateInputBoxMessage(event: any): void {
-    this.inputBoxMessage = event.target.value;
-    console.log("input msg: " + this.inputBoxMessage);
+  updateDraft(str: string): void {
+    this.chatData.draft = str;
+    console.log("updated msg draft: " + this.chatData.draft);
   }
 
+  // TODO: implement
   sendMessage(): void {
-    console.log("sendMessage: " + this.inputBoxMessage);
+    this.updateDraft(this.inputBoxEl.nativeElement.value);
+    let messageText: string = this.chatData.draft;
+    console.log("sending message: " + messageText);
+    this.inputBoxEl.nativeElement.value = "";
+
+    // TODO: TEMP! just for testing
+    let msg: MessageData = {
+      id: this.getLastMessage().id,
+      type: "message",
+      date: Date().toLocaleString(),
+      from: this.userManager.getUserName(),
+      from_id: this.userManager.getActiveUserId(),
+      text: messageText
+    }
+    this.chatManager.addMessageToChat(this.chatManager.activeChatId, msg);
+
+    console.warn("sendMessage has a mock impl.");
+  }
+
+  getLastMessage(): MessageData {
+    return this.chatData.messages.slice(-1)[0];
   }
 
   scrollToBottom(): void {
     try {
         this.chatDiv.nativeElement.scrollTop = this.chatDiv.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  focusOnInputBox(): void {
+    if (this.inputBoxEl) {
+      this.inputBoxEl.nativeElement.focus();
+    }
   }
 
 }

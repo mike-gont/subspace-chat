@@ -15,31 +15,27 @@ export class UserManagerService {
   constructor() {
     this.isConfigured = false;
     this.usersContainer = new UsersContainer;
-    this.init();
+    let load_res: boolean = this.loadDataFromFile();
+    this.isConfigured = load_res;
   }
 
   // Observable activeUserId source and stream
   private activeUserIdSource = new Subject<string>();
   activeUserId$ = this.activeUserIdSource.asObservable();
-  setActiveUser(id: string) {
+  setActiveUser(id: string): void {
     this.activeUserId = id;
     this.activeUserIdSource.next(id);
   }
-  
-  init() {
-    let load_res: boolean = this.loadUsersFromFile();
-    this.isConfigured = load_res;
-  }
 
-  getUserName(): string {
+  getUserName(id: string = this.activeUserId): string {
     if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
     }
-    return this.usersContainer.getUser(this.activeUserId).name;
+    return this.usersContainer.getUser(id).name;
   }
 
-  getUserId(): string {
+  getActiveUserId(): string {
     if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
@@ -47,30 +43,38 @@ export class UserManagerService {
     return this.activeUserId;
   }
 
-  getUserDir(): string {
-    return "user-data/" + this.getUserName();
+  getUserDir(id: string = this.activeUserId): string {
+    // console.log("getUserDir(id = " + id + ")");
+    return "user-data/" + this.getUserName(id);
   }
 
   addUser(name: string): void {
     const id: string = UserManagerService.generateId();
     this.usersContainer.setUser({ name: name, id:id });
     this.switchUser(id);
+    this.saveUsersToFile();
   }
 
   switchUser(id: string): void {
     this.setActiveUser(id);
-    this.saveUsersToFile();
+    this.saveActiveUserToFile();
   }
 
   saveUsersToFile(): void {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
-    store.set('active_user_id', this.activeUserId);
     store.set('users', this.usersContainer.getUsersArray());
     console.log("saved users to file");
   }
 
-  loadUsersFromFile(): boolean {
+  saveActiveUserToFile(): void {
+    const fileName = "user-data/users";
+    const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
+    store.set('active_user_id', this.activeUserId);
+    console.log("saved active user id to file");
+  }
+
+  loadDataFromFile(): boolean {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     if (!store.has('active_user_id') || !store.has('users')) {
@@ -96,7 +100,7 @@ export class UserManagerService {
     // Convert it to base 36 (numbers + letters), and grab the first 10 characters
     // after the decimal.
     return Math.random().toString(36).substr(2, 10);
-  };
+  }
 
   static usersListSchema = {
     active_user_id: { type: 'string' },

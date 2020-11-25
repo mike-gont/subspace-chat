@@ -1,6 +1,6 @@
 {
   "name": "subspace-chat",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "author": {
     "name": "Mike Gont",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "9.2.0",
-    "@angular-devkit/build-angular": "0.1000.8",
+    "@angular-devkit/build-angular": "0.1100.2",
     "@angular-eslint/builder": "0.2.0-beta.1",
     "@angular-eslint/eslint-plugin": "0.2.0-beta.1",
     "@angular-eslint/eslint-plugin-template": "0.2.0-beta.1",
@@ -57,7 +57,7 @@
     "conventional-changelog-cli": "2.1.0",
     "core-js": "3.6.5",
     "cross-env": "7.0.2",
-    "electron": "^10.1.2",
+    "electron": "11.0.2",
     "electron-builder": "22.8.0",
     "electron-reload": "1.5.0",
     "eslint": "7.7.0",
