@@ -9,6 +9,7 @@ const Store = require('electron-store');
 })
 export class ChatManagerService {
 
+  userId: string;
   chatsList: ChatsListItem[];
   chatsContainer: ChatsContainer;
   activeChatId: number;
@@ -20,6 +21,7 @@ export class ChatManagerService {
     this.observeActiveUserId();
 
     if (userManager.isConfigured) {
+      this.userId = this.userManager.getActiveUserId();
       this.loadChatsListFromFile();
     }
   }
@@ -42,7 +44,7 @@ export class ChatManagerService {
   }
 
   loadChatsListFromFile(): boolean {
-    const fileName = this.userManager.getUserDir() + "/chats-list";
+    const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
     if (!store.has('chats')) {
       console.warn("chats list file is not availble / invalid: " + fileName);
@@ -56,8 +58,8 @@ export class ChatManagerService {
     return this.chatsList;
   }
 
-  loadChatFromFile(id: number, loadFully: boolean): boolean {
-    const fileName = this.userManager.getUserDir() + "/chats/chat-" + id;
+  loadChatFromFile(id: number, loadFullChat: boolean): boolean {
+    const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
     const store = new Store({ name: fileName, schema: ChatManagerService.chatSchema });
 
     if (!store.has('id') || !store.has('name') || !store.has('type') || !store.has('messages')) {
@@ -71,11 +73,12 @@ export class ChatManagerService {
       id: id,
       messages: [],
       full: false,
-      draft: ""
+      draft: "",
+      numOfUnstoredMessages: 0
     };
 
     // TODO: I assume store.get('messages') loads all messages to memory. check how this can be avoided
-    if (loadFully || store.get('messages').length <= this.numMessagesToLoad) {
+    if (loadFullChat || store.get('messages').length <= this.numMessagesToLoad) {
       chat.messages = store.get('messages');
       chat.full = true;
     }
@@ -109,30 +112,47 @@ export class ChatManagerService {
     return this.chatsContainer.getChat(id);
   }
 
-  updateChat(id: number, messages: MessageData[]) {
-    // TODO: implement
-    console.error("not implemented");
+  addMessageToChat(id: number, msg: MessageData) {
+    this.chatsContainer.getMessages(id).push(msg);
+    this.chatsContainer.getChat(id).numOfUnstoredMessages++;
   }
 
-  saveChatToFile(id: number) {
-    // TODO: implement
-    console.error("saveChatToFile not implemented");
-    // TODO: we want to append messages from the state to the chat file
-    // and not write the file from scratch, as the chat from the state can be partial.
+  // TODO: we want to append messages from the state to the chat file
+  // and not write the file from scratch, as the chat from the state can be partial.
+  updateChatFile(id: number): void {
+    const n: number = this.chatsContainer.getChat(id).numOfUnstoredMessages;
+    if (n == 0) {
+      return;
+    }
+    const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
+    console.log("updateChatFile: " + fileName);
+    const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
+    const storedMessages: MessageData[] = store.get('messages');
+    const updatedMessages: MessageData[] =
+      storedMessages.concat(this.chatsContainer.getMessages(id).slice(-n));
 
-    // const fileName = this.userManager.getUserDir() + "/chats/chat-" + id;
-    // const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
-    // ...
-    // console.log("saved chat " + id + " to file: " + fileName);
+    store.set('messages', updatedMessages);
+    console.log("saved chat " + id + " with " + n + " new messages to file: " + fileName);
+    this.chatsContainer.getChat(id).numOfUnstoredMessages = 0;
   }
+
+  updateAllChatFiles(): void {
+    for (const id of this.chatsContainer.getIds()) {
+      this.updateChatFile(id);
+    }
+  }
+
+  // --------------------------------------------------------------------------
 
   onUserSwitch() {
-    // TODO: save unsaved chats state before switching everything
-    // this.saveChatsToFiles();
+    console.log("chat mgr: onUserSwitch");
+    this.updateAllChatFiles();
     this.chatsList = [];
     this.chatsContainer.clear();
-    this.loadChatsListFromFile();
     this.activeChatId = undefined;
+    this.userId = this.userManager.getActiveUserId();
+    this.loadChatsListFromFile();
+    console.log("set chat manager user id: " + this.userId);
   }
 
   setDraft(id: number, str: string): void {
@@ -172,13 +192,17 @@ export class ChatManagerService {
   };
 }
 
-export interface ChatData {
+interface StoredChatData {
   name: string;
   type: string;
   id: number;
   messages: MessageData[];
+}
+
+export interface ChatData extends StoredChatData {
   full: boolean;
   draft: string;
+  numOfUnstoredMessages: number;
 }
 
 export interface MessageData {
@@ -209,6 +233,10 @@ class ChatsContainer {
     this.chats[chat.id] = chat;
   }
 
+  getMessages(id: number): MessageData[] {
+    return this.chats[id].messages;
+  }
+
   chatExists(id: number): boolean {
     return this.chats.hasOwnProperty(id);
   }
@@ -217,14 +245,14 @@ class ChatsContainer {
     return this.chats.hasOwnProperty(id) && this.chats[id].full;
   }
 
+  getIds(): number[] {
+    return Object.keys(this.chats).map(Number);
+  }
+
   clear() {
     this.chats = {}; // TODO: should delete instead of leaving for GC?
   }
 }
-
-// export interface ChatsList {
-//   chats: ChatsListItem[];
-// }
 
 export interface ChatsListItem {
   id: number,

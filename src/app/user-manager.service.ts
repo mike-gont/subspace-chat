@@ -27,15 +27,15 @@ export class UserManagerService {
     this.activeUserIdSource.next(id);
   }
 
-  getUserName(): string {
+  getUserName(id: string = this.activeUserId): string {
     if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
     }
-    return this.usersContainer.getUser(this.activeUserId).name;
+    return this.usersContainer.getUser(id).name;
   }
 
-  getUserId(): string {
+  getActiveUserId(): string {
     if (!this.isConfigured) {
       console.error("active user is not defined!");
       return undefined;
@@ -43,8 +43,9 @@ export class UserManagerService {
     return this.activeUserId;
   }
 
-  getUserDir(): string {
-    return "user-data/" + this.getUserName();
+  getUserDir(id: string = this.activeUserId): string {
+    // console.log("getUserDir(id = " + id + ")");
+    return "user-data/" + this.getUserName(id);
   }
 
   addUser(name: string): void {

@@ -23,13 +23,13 @@ export class ChatsListComponent implements OnInit {
     // refresh chats list when switching users
     this.userManager.activeUserId$.subscribe(
       id => {
-        this.refresh();
+        this.onUserSwitch();
       }
     );
   }
 
-  refresh(): void {
-    console.log("refresh");
+  onUserSwitch(): void {
+    console.log("chats list comp: onUserSwitch");
     this.loadChatsList();
   }
 

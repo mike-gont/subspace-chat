@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
-import { ChatManagerService, ChatData } from 'app/chat-manager.service';
+import { ChatManagerService, ChatData, MessageData } from 'app/chat-manager.service';
 import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
@@ -40,13 +40,13 @@ export class ChatComponent implements OnInit {
     // clear chat when switching users
     this.userManager.activeUserId$.subscribe(
       id => {
-        this.onChatSwitch();
-        this.chatData = undefined;
+        this.onUserSwitch();
       }
     );
   }
 
   onChatSwitch(): void {
+    console.log("chat comp: onChatSwitch");
     if (this.chatData) {
       this.updateDraft(this.inputBoxEl.nativeElement.value);
       this.chatManager.setDraft(this.chatData.id, this.chatData.draft);
@@ -56,8 +56,13 @@ export class ChatComponent implements OnInit {
     }
   }
 
+  onUserSwitch(): void {
+    console.log("chat comp: onUserSwitch");
+    this.chatData = undefined;
+  }
+
   getMyUserId(): string {
-    return this.userManager.getUserId();
+    return this.userManager.getActiveUserId();
   }
 
   loadChat(): void {
@@ -80,10 +85,26 @@ export class ChatComponent implements OnInit {
   // TODO: implement
   sendMessage(): void {
     this.updateDraft(this.inputBoxEl.nativeElement.value);
-    console.log("sending message: " + this.chatData.draft);
+    let messageText: string = this.chatData.draft;
+    console.log("sending message: " + messageText);
     this.inputBoxEl.nativeElement.value = "";
 
-    console.warn("sendMessage not implemented");
+    // TODO: TEMP! just for testing
+    let msg: MessageData = {
+      id: this.getLastMessage().id,
+      type: "message",
+      date: Date().toLocaleString(),
+      from: this.userManager.getUserName(),
+      from_id: this.userManager.getActiveUserId(),
+      text: messageText
+    }
+    this.chatManager.addMessageToChat(this.chatManager.activeChatId, msg);
+
+    console.warn("sendMessage has a mock impl.");
+  }
+
+  getLastMessage(): MessageData {
+    return this.chatData.messages.slice(-1)[0];
   }
 
   scrollToBottom(): void {
