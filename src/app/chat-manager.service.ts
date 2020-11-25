@@ -34,6 +34,13 @@ export class ChatManagerService {
     this.activeChatIdSource.next(id);
   }
 
+  // Observable new message flag
+  private newMessageFlagSource = new Subject<number>();
+  newMessageFlag$ = this.newMessageFlagSource.asObservable();
+  raiseNewMessageFlag(id: number) {
+    this.newMessageFlagSource.next(id);
+  }
+
   observeActiveUserId(): void {
     // subscribe to the active user id and do stuff when it changes
     this.userManager.activeUserId$.subscribe(
@@ -56,6 +63,10 @@ export class ChatManagerService {
 
   getChatsList(): ChatsListItem[] {
     return this.chatsList;
+  }
+
+  getLastMessage(id: number = this.activeChatId): MessageData {
+    return this.chatsContainer.getMessages(id).slice(-1)[0];
   }
 
   loadChatFromFile(id: number, loadFullChat: boolean): boolean {
@@ -113,8 +124,10 @@ export class ChatManagerService {
   }
 
   addMessageToChat(id: number, msg: MessageData) {
+    console.log("chat mgr: new msg for chat " + id + ": " + msg.text);
     this.chatsContainer.getMessages(id).push(msg);
     this.chatsContainer.getChat(id).numOfUnstoredMessages++;
+    this.raiseNewMessageFlag(id);
   }
 
   // TODO: we want to append messages from the state to the chat file
@@ -140,6 +153,13 @@ export class ChatManagerService {
     for (const id of this.chatsContainer.getIds()) {
       this.updateChatFile(id);
     }
+  }
+
+  updateChatsListFile(): void {
+    console.log("updating chats list file");
+    const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
+    const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
+    store.set('chats', this.chatsList);
   }
 
   // --------------------------------------------------------------------------

@@ -17,6 +17,7 @@ export class ChatComponent implements OnInit {
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
     this.observeActiveChatId();
     this.observeActiveUserId();
+    this.observeNewMessageFlag();
   }
 
   ngOnInit(): void {
@@ -43,6 +44,14 @@ export class ChatComponent implements OnInit {
         this.onUserSwitch();
       }
     );
+  }
+
+  observeNewMessageFlag(): void {
+    this.chatManager.newMessageFlag$.subscribe(
+      id => {
+        // TODO: implement
+      }
+    )
   }
 
   onChatSwitch(): void {
