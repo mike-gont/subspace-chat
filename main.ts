@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 
@@ -41,12 +41,21 @@ function createWindow(): BrowserWindow {
     }));
   }
 
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store window
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null;
+  // this function will be called twice when closing the window
+  // first call will prevent exiting (just hide the window) and send
+  // an IPC message to the app (renderer process) to run its logic before closing
+  // after the app messages back it's done, this will be called again and actually exit
+  win.on('close', (e) => {
+    if (win.isVisible()) {
+      e.preventDefault();
+      win.hide();
+      win.webContents.send('app-close');
+    } else {
+      // Dereference the window object, usually you would store window
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      win = null;
+    }
   });
 
   return win;
@@ -73,6 +82,15 @@ try {
     // dock icon is clicked and there are no other windows open.
     if (win === null) {
       createWindow();
+    }
+  });
+
+  // when the app (renderer process) messages back it's done with its close logic, finish exiting.
+  // this will cause the "win.on('close'..." event handler to run again for the second time,
+  // this time without preventing the exit
+  ipcMain.on('app-close-done', _ => {
+    if (process.platform !== 'darwin') {
+      app.quit();
     }
   });
 

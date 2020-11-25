@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { UserManagerService } from './user-manager.service';
 
 const Store = require('electron-store');
@@ -162,17 +162,22 @@ export class ChatManagerService {
     store.set('chats', this.chatsList);
   }
 
-  // --------------------------------------------------------------------------
-
-  onUserSwitch() {
+  onUserSwitch(): void {
     console.log("chat mgr: onUserSwitch");
     this.updateAllChatFiles();
+    this.updateChatsListFile();
     this.chatsList = [];
     this.chatsContainer.clear();
     this.activeChatId = undefined;
     this.userId = this.userManager.getActiveUserId();
     this.loadChatsListFromFile();
     console.log("set chat manager user id: " + this.userId);
+  }
+
+  beforeAppClose(): void {
+    console.log('chat mgr: close routine')
+    this.updateAllChatFiles();
+    this.updateChatsListFile();
   }
 
   setDraft(id: number, str: string): void {

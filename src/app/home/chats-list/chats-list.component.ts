@@ -51,11 +51,6 @@ export class ChatsListComponent implements OnInit {
     return this.chatManager.getLastMessage(this.chatManager.activeChatId).text;
   }
 
-  // TODO: use this - on exit / switching users
-  updateFile(): void {
-    this.chatManager.updateChatsListFile();
-  }
-
   updateItem(id: number): void {
     console.log("chats list comp: updateItem");
     for (let item of this.chatsList) {

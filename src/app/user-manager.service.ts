@@ -100,7 +100,7 @@ export class UserManagerService {
     // Convert it to base 36 (numbers + letters), and grab the first 10 characters
     // after the decimal.
     return Math.random().toString(36).substr(2, 10);
-  };
+  }
 
   static usersListSchema = {
     active_user_id: { type: 'string' },
