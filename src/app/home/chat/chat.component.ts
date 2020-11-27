@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
-import { ChatManagerService, ChatData, MessageData } from 'app/chat-manager.service';
+import { ChatManagerService, ChatData, ChatMsg, MsgStatus } from 'app/chat-manager.service';
 import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
@@ -99,12 +99,13 @@ export class ChatComponent implements OnInit {
     this.inputBoxEl.nativeElement.value = "";
 
     // TODO: TEMP! just for testing
-    let msg: MessageData = {
-      id: this.getLastMessage().id,
+    let msg: ChatMsg = {
+      id: this.getLastMessage().id + 1,
       type: "message",
-      date: Date().toLocaleString(),
+      date: this.chatManager.genCurrentDateStr(),
       from: this.userManager.getUserName(),
       from_id: this.userManager.getActiveUserId(),
+      status: MsgStatus.Pending,
       text: messageText
     }
     this.chatManager.addMessageToChat(this.chatManager.activeChatId, msg);
@@ -112,8 +113,12 @@ export class ChatComponent implements OnInit {
     console.warn("sendMessage has a mock impl.");
   }
 
-  getLastMessage(): MessageData {
+  getLastMessage(): ChatMsg {
     return this.chatData.messages.slice(-1)[0];
+  }
+
+  getTime(date: string): string {
+    return this.chatManager.getTimeFromDateStr(date);
   }
 
   scrollToBottom(): void {
@@ -125,6 +130,20 @@ export class ChatComponent implements OnInit {
   focusOnInputBox(): void {
     if (this.inputBoxEl) {
       this.inputBoxEl.nativeElement.focus();
+    }
+  }
+
+  msgStatusToCssClassName(status: MsgStatus): string {
+    if (status == undefined) {
+      return "";
+    }
+    switch(status) {
+      case MsgStatus.Pending:
+        return "status-icon-pending";
+      case MsgStatus.Sent:
+        return "status-icon-sent";
+      case MsgStatus.Received:
+        return "status-icon-received";
     }
   }
 

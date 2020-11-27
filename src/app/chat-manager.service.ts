@@ -50,6 +50,10 @@ export class ChatManagerService {
     );
   }
 
+  sendMessage(): void {
+    console.warn("unimplemented");
+  }
+
   loadChatsListFromFile(): boolean {
     const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
@@ -65,7 +69,7 @@ export class ChatManagerService {
     return this.chatsList;
   }
 
-  getLastMessage(id: number = this.activeChatId): MessageData {
+  getLastMessage(id: number = this.activeChatId): ChatMsg {
     return this.chatsContainer.getMessages(id).slice(-1)[0];
   }
 
@@ -123,7 +127,7 @@ export class ChatManagerService {
     return this.chatsContainer.getChat(id);
   }
 
-  addMessageToChat(id: number, msg: MessageData) {
+  addMessageToChat(id: number, msg: ChatMsg) {
     console.log("chat mgr: new msg for chat " + id + ": " + msg.text);
     this.chatsContainer.getMessages(id).push(msg);
     this.chatsContainer.getChat(id).numOfUnstoredMessages++;
@@ -140,8 +144,8 @@ export class ChatManagerService {
     const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
     console.log("updateChatFile: " + fileName);
     const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
-    const storedMessages: MessageData[] = store.get('messages');
-    const updatedMessages: MessageData[] =
+    const storedMessages: ChatMsg[] = store.get('messages');
+    const updatedMessages: ChatMsg[] =
       storedMessages.concat(this.chatsContainer.getMessages(id).slice(-n));
 
     store.set('messages', updatedMessages);
@@ -198,6 +202,25 @@ export class ChatManagerService {
     }
   };
 
+  genCurrentDateStr(): string {
+    var currentdate = new Date();
+    return currentdate.getFullYear() + "-"
+    + (currentdate.getMonth()+1)  + "-"
+    + currentdate.getDate() + "T"
+    + currentdate.getHours() + ":"
+    + currentdate.getMinutes() + ":"
+    + currentdate.getSeconds();
+  }
+
+  getTimeFromDateStr(date: string) {
+    const min_sec = date.split('T')[1].split(':');
+    return min_sec[0] + ":" + min_sec[1];
+  }
+
+  getDateFromDateStr(date:string) {
+    return date.split('T')[0];
+  }
+
   // TODO: fix this schema
   static chatSchema = {
     name: { type: 'string' },
@@ -221,7 +244,7 @@ interface StoredChatData {
   name: string;
   type: string;
   id: number;
-  messages: MessageData[];
+  messages: ChatMsg[];
 }
 
 export interface ChatData extends StoredChatData {
@@ -230,13 +253,21 @@ export interface ChatData extends StoredChatData {
   numOfUnstoredMessages: number;
 }
 
-export interface MessageData {
+export interface ChatMsg {
   id: number;
   type: string;
   date: string;
   from: string;
   from_id: string;
+  status: MsgStatus;
   text: string;
+}
+
+export enum MsgStatus {
+  None = 0,
+  Pending = 1,
+  Sent = 2,
+  Received = 3
 }
 
 class ChatsContainer {
@@ -258,7 +289,7 @@ class ChatsContainer {
     this.chats[chat.id] = chat;
   }
 
-  getMessages(id: number): MessageData[] {
+  getMessages(id: number): ChatMsg[] {
     return this.chats[id].messages;
   }
 

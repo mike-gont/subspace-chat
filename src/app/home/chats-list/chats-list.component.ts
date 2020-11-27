@@ -57,7 +57,8 @@ export class ChatsListComponent implements OnInit {
       if (item.id == id) {
         let msg = this.chatManager.getLastMessage(item.id);
         item.last_msg_from = msg.from;
-        item.last_msg_date = msg.date;
+        item.last_msg_date = this.chatManager.getDateFromDateStr(msg.date)
+          + " " + this.chatManager.getTimeFromDateStr(msg.date);
         item.last_msg_text = msg.text;
         break;
       }
