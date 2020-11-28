@@ -9,10 +9,9 @@
   <div class="chat-log" #chatview>
     <a class="button is-small is-dark" *ngIf="chatData.full == false" (click)=loadFullChat()>Load All Messages</a>
     <div *ngFor="let msg of chatData.messages">
-      <!-- <p class="">{{msg.from}}</p> -->
-      <!-- <p class="">{{msg.date}}</p> -->
       <div [className]="msg.from_id == getMyUserId() ? 'chat-message--right' : 'chat-message'">
         <div class="chat-message__text">
+
           <p>{{ msg.text }}</p>
 
           <div class="chat-message__status-frame">
@@ -34,5 +33,3 @@
     <button type="submit" class="chat-input-area__submit-button" (click)=sendMessage()></button>
   </form>
 </div>
-
-<!-- (keyup)=updateDraft($event) -->

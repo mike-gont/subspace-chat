@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 const Store = require('electron-store');
 
@@ -49,7 +49,7 @@ export class UserManagerService {
   }
 
   addUser(name: string): void {
-    const id: string = UserManagerService.generateId();
+    const id: string = this.generateId();
     this.usersContainer.setUser({ name: name, id:id });
     this.switchUser(id);
     this.saveUsersToFile();
@@ -60,21 +60,21 @@ export class UserManagerService {
     this.saveActiveUserToFile();
   }
 
-  saveUsersToFile(): void {
+  private saveUsersToFile(): void {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     store.set('users', this.usersContainer.getUsersArray());
     console.log("saved users to file");
   }
 
-  saveActiveUserToFile(): void {
+  private saveActiveUserToFile(): void {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     store.set('active_user_id', this.activeUserId);
     console.log("saved active user id to file");
   }
 
-  loadDataFromFile(): boolean {
+  private loadDataFromFile(): boolean {
     const fileName = "user-data/users";
     const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
     if (!store.has('active_user_id') || !store.has('users')) {
@@ -95,11 +95,8 @@ export class UserManagerService {
     return this.usersContainer.getUsersArray();
   }
 
-  static generateId (): string {
-    // Math.random should be unique because of its seeding algorithm.
-    // Convert it to base 36 (numbers + letters), and grab the first 10 characters
-    // after the decimal.
-    return Math.random().toString(36).substr(2, 10);
+  private generateId (): string {
+    return Math.random().toString(36).substr(2, 20);
   }
 
   static usersListSchema = {

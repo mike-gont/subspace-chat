@@ -98,7 +98,6 @@ export class ChatComponent implements OnInit {
     console.log("sending message: " + messageText);
     this.inputBoxEl.nativeElement.value = "";
 
-    // TODO: TEMP! just for testing
     let msg: ChatMsg = {
       id: this.getLastMessage().id + 1,
       type: "message",
@@ -108,7 +107,7 @@ export class ChatComponent implements OnInit {
       status: MsgStatus.Pending,
       text: messageText
     }
-    this.chatManager.addMessageToChat(this.chatManager.activeChatId, msg);
+    this.chatManager.sendMessage(this.chatData.id, msg);
 
     console.warn("sendMessage has a mock impl.");
   }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { UserManagerService } from './user-manager.service';
+import { UserManagerService } from 'app/user-manager.service';
+import { SubspaceComService } from 'app/subspace-com.service';
 
 const Store = require('electron-store');
 
@@ -15,7 +16,10 @@ export class ChatManagerService {
   activeChatId: number;
   numMessagesToLoad: number = 100;
 
-  constructor(private userManager: UserManagerService) {
+  constructor(
+    private userManager: UserManagerService,
+    private subspaceCom: SubspaceComService
+    ) {
     this.chatsContainer = new ChatsContainer;
 
     this.observeActiveUserId();
@@ -41,7 +45,7 @@ export class ChatManagerService {
     this.newMessageFlagSource.next(id);
   }
 
-  observeActiveUserId(): void {
+  private observeActiveUserId(): void {
     // subscribe to the active user id and do stuff when it changes
     this.userManager.activeUserId$.subscribe(
       activeUserId => {
@@ -50,11 +54,13 @@ export class ChatManagerService {
     );
   }
 
-  sendMessage(): void {
+  sendMessage(chatId: number, msg: ChatMsg): void {
+    this.addMessageToChat(chatId, msg);
     console.warn("unimplemented");
+    // this.subspaceCom.sendMessage(chatId, msg);
   }
 
-  loadChatsListFromFile(): boolean {
+  private loadChatsListFromFile(): boolean {
     const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
     if (!store.has('chats')) {
@@ -73,7 +79,7 @@ export class ChatManagerService {
     return this.chatsContainer.getMessages(id).slice(-1)[0];
   }
 
-  loadChatFromFile(id: number, loadFullChat: boolean): boolean {
+  private loadChatFromFile(id: number, loadFullChat: boolean): boolean {
     const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
     const store = new Store({ name: fileName, schema: ChatManagerService.chatSchema });
 
@@ -127,7 +133,7 @@ export class ChatManagerService {
     return this.chatsContainer.getChat(id);
   }
 
-  addMessageToChat(id: number, msg: ChatMsg) {
+  private addMessageToChat(id: number, msg: ChatMsg): void {
     console.log("chat mgr: new msg for chat " + id + ": " + msg.text);
     this.chatsContainer.getMessages(id).push(msg);
     this.chatsContainer.getChat(id).numOfUnstoredMessages++;
@@ -136,7 +142,7 @@ export class ChatManagerService {
 
   // TODO: we want to append messages from the state to the chat file
   // and not write the file from scratch, as the chat from the state can be partial.
-  updateChatFile(id: number): void {
+  private updateChatFile(id: number): void {
     const n: number = this.chatsContainer.getChat(id).numOfUnstoredMessages;
     if (n == 0) {
       return;
@@ -153,20 +159,20 @@ export class ChatManagerService {
     this.chatsContainer.getChat(id).numOfUnstoredMessages = 0;
   }
 
-  updateAllChatFiles(): void {
+  private updateAllChatFiles(): void {
     for (const id of this.chatsContainer.getIds()) {
       this.updateChatFile(id);
     }
   }
 
-  updateChatsListFile(): void {
+  private updateChatsListFile(): void {
     console.log("updating chats list file");
     const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
     store.set('chats', this.chatsList);
   }
 
-  onUserSwitch(): void {
+  private onUserSwitch(): void {
     console.log("chat mgr: onUserSwitch");
     this.updateAllChatFiles();
     this.updateChatsListFile();
