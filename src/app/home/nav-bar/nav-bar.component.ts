@@ -13,5 +13,15 @@ export class NavBarComponent implements OnInit {
 
   ngOnInit(): void {
   }
+
+  ngAfterViewInit(): void {
+  }
+
+  switchUser(id: string): void {
+    if (id == "") {
+      return;
+    }
+    this.userManager.switchUser(id);
+  }
     
 }

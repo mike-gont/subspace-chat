@@ -1,0 +1,93 @@
+<div class="new-chat-page-container">
+
+  <div class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+
+      <article class="message">
+        <div class="message-header">
+          <p>New Chat</p>
+          <button class="delete" (click)=closePage()></button>
+        </div>
+        <div class="message-body">
+
+          <div class="tabs is-toggle is-medium is-centered">
+            <ul>
+              <li #create_tab (click)="isInitiating = true; create_tab.focus()">
+                <a>Create Chat</a>
+              </li>
+              <li #join_tab (click)="isInitiating = false; join_tab.focus()" >
+                <a>Join Chat</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="create-chat-form" [hidden]="!isInitiating">
+            <p>Create a new chat</p>
+            <div class="field">
+              <p class="control has-icons-left has-icons-right">
+                <input #join_name_input class="input" placeholder="Name">
+              </p>
+            </div>
+
+            <button class="button" (click)=createOffer()>
+              Refresh Offer
+            </button>
+
+            <div class="control">
+              <textarea #my_offer class="textarea" type="text" readonly>your offer should appear here</textarea>
+            </div>
+
+            <div class="control">
+              <textarea #remote_answer class="textarea" type="text">paste answer here</textarea>
+            </div>
+
+            <div class="field">
+              <p class="control">
+                <button class="button is-primary" (click)=createNewChat(join_name_input.value,remote_answer.value)>
+                  Create
+                </button>
+              </p>
+            </div>
+
+          </div>
+
+          <div class="join-chat-form" [hidden]="isInitiating">
+            <p>Join a chat</p>
+            <div class="field">
+              <p class="control has-icons-left has-icons-right">
+                <input #name_input class="input" placeholder="Name">
+              </p>
+            </div>
+
+            <div class="control">
+              <textarea #remote_offer class="textarea" type="text">paste offer here</textarea>
+            </div>
+
+            <button class="button" (click)=createAnswer(remote_offer.value)>
+              Create Answer
+            </button>
+
+            <div class="control">
+              <textarea #my_answer class="textarea" type="text" readonly>your answer should appear here</textarea>
+            </div>
+
+            <div class="field">
+              <p class="control">
+                <button class="button is-primary" (click)=joinNewChat(name_input.value,my_answer.value)>
+                  Join
+                </button>
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+ 
+
+</div>
