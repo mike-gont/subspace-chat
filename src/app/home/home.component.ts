@@ -23,6 +23,10 @@ export class HomeComponent implements OnInit {
     this.activePopUp = 'new-user-page';
   }
 
+  showNewChatPage(): void {
+    this.activePopUp = 'new-chat-page';
+  }
+
   closePopUp(): void {
     this.activePopUp = undefined;
   }

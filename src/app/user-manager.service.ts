@@ -56,6 +56,10 @@ export class UserManagerService {
   }
 
   switchUser(id: string): void {
+    if (id == "") {
+      console.error("no id");
+      return;
+    }
     this.setActiveUser(id);
     this.saveActiveUserToFile();
   }
@@ -86,7 +90,13 @@ export class UserManagerService {
       this.usersContainer.setUser({ name: item.name, id: item.id });
     }
 
-    this.setActiveUser(store.get('active_user_id'));
+    let active_user_id = store.get('active_user_id');
+    // make sure the active user id is valid. if not, set the the first user
+    if (!this.usersContainer.userExists(active_user_id) && this.usersContainer.getUsersArray) {
+      active_user_id = this.usersContainer.getUsersArray()[0].id;
+    }
+
+    this.setActiveUser(active_user_id);
     console.log("loaded users from file. active user id: " + this.activeUserId);
     return true;
   }

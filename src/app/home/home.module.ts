@@ -8,10 +8,11 @@ import { SharedModule } from '../shared/shared.module';
 import { ChatComponent } from './chat/chat.component';
 import { ChatsListComponent } from './chats-list/chats-list.component';
 import { NewUserPageComponent } from './new-user-page/new-user-page.component';
+import { NewChatPageComponent } from './new-chat-page/new-chat-page.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 @NgModule({
-  declarations: [HomeComponent, ChatComponent, ChatsListComponent, NewUserPageComponent, NavBarComponent],
+  declarations: [HomeComponent, ChatComponent, ChatsListComponent, NewUserPageComponent, NewChatPageComponent, NavBarComponent],
   imports: [CommonModule, SharedModule, HomeRoutingModule],
   exports: [HomeComponent]
 })

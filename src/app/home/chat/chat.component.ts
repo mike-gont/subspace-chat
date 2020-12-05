@@ -91,15 +91,20 @@ export class ChatComponent implements OnInit {
     console.log("updated msg draft: " + this.chatData.draft);
   }
 
-  // TODO: implement
   sendMessage(): void {
     this.updateDraft(this.inputBoxEl.nativeElement.value);
-    let messageText: string = this.chatData.draft;
-    console.log("sending message: " + messageText);
     this.inputBoxEl.nativeElement.value = "";
+    let messageText: string = this.chatData.draft;
+    let msg_id: number = 0;
+
+    if (this.getLastMessage()) {
+      msg_id = this.getLastMessage().id + 1;
+    }
+
+    console.log("sending message #" + msg_id + ": " + messageText);
 
     let msg: ChatMsg = {
-      id: this.getLastMessage().id + 1,
+      id: msg_id,
       type: "message",
       date: this.chatManager.genCurrentDateStr(),
       from: this.userManager.getUserName(),
@@ -108,8 +113,6 @@ export class ChatComponent implements OnInit {
       text: messageText
     }
     this.chatManager.sendMessage(this.chatData.id, msg);
-
-    console.warn("sendMessage has a mock impl.");
   }
 
   getLastMessage(): ChatMsg {

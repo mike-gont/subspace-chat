@@ -54,21 +54,57 @@ export class ChatManagerService {
     );
   }
 
+  createChat(name: string): void {
+    let id: number = this.genChatId();
+    while (this.chatsContainer.chatExists(id)) {
+      id = Math.floor(Math.random() * 1000000000);
+    }
+    let type = "group_chat"; // TODO: FUTURE: add private chat option
+
+    let newChat: ChatData = {
+      id: id,
+      name: name,
+      type: type,
+      messages: [],
+      full: true,
+      numOfUnstoredMessages: 0,
+      draft: ""
+    };
+    this.chatsContainer.setChat(newChat);
+
+    let newListItem: ChatsListItem = {
+      id: id,
+      name: name,
+      last_msg_from: "",
+      last_msg_date: "",
+      last_msg_text: ""
+    };
+    this.chatsList.push(newListItem);
+
+    this.createChatFile(id);
+    this.updateChatsListFile();
+  }
+
+  private genChatId(): number {
+    return Math.floor(Math.random() * 1000000000);
+  }
+
   sendMessage(chatId: number, msg: ChatMsg): void {
     this.addMessageToChat(chatId, msg);
     console.warn("unimplemented");
     // this.subspaceCom.sendMessage(chatId, msg);
   }
 
-  private loadChatsListFromFile(): boolean {
-    const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
+  private loadChatsListFromFile(): void {
+    const fileName = this.chatsListFilePath();
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
     if (!store.has('chats')) {
-      console.warn("chats list file is not availble / invalid: " + fileName);
-      return false;
+      console.warn("chats list file is not availble / invalid: " + fileName + ". creating a new one...");
+      this.createChatsListFile();
+      this.chatsList = [];
+      return;
     }
     this.chatsList = store.get('chats');
-    return true;
   }
 
   getChatsList(): ChatsListItem[] {
@@ -80,7 +116,7 @@ export class ChatManagerService {
   }
 
   private loadChatFromFile(id: number, loadFullChat: boolean): boolean {
-    const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
+    const fileName = this.chatFilePath(id);
     const store = new Store({ name: fileName, schema: ChatManagerService.chatSchema });
 
     if (!store.has('id') || !store.has('name') || !store.has('type') || !store.has('messages')) {
@@ -140,6 +176,23 @@ export class ChatManagerService {
     this.raiseNewMessageFlag(id);
   }
 
+  private createChatFile(id: number): void {
+    const fileName = this.chatFilePath(id);
+    console.log("createChatFile: " + fileName);
+    const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
+    store.set('name', this.chatsContainer.getChat(id).name);
+    store.set('type', this.chatsContainer.getChat(id).type);
+    store.set('id', id);
+    store.set('messages', this.chatsContainer.getMessages(id));
+  }
+
+  private createChatsListFile(): void {
+    const fileName = this.chatsListFilePath();
+    console.log("createChatsListFile: " + fileName);
+    const store = new Store({name: fileName, schema: ChatManagerService.chatsListSchema});
+    store.set('chats', []);
+  }
+
   // TODO: we want to append messages from the state to the chat file
   // and not write the file from scratch, as the chat from the state can be partial.
   private updateChatFile(id: number): void {
@@ -147,7 +200,7 @@ export class ChatManagerService {
     if (n == 0) {
       return;
     }
-    const fileName = this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
+    const fileName = this.chatFilePath(id);
     console.log("updateChatFile: " + fileName);
     const store = new Store({name: fileName, schema: ChatManagerService.chatSchema});
     const storedMessages: ChatMsg[] = store.get('messages');
@@ -167,7 +220,7 @@ export class ChatManagerService {
 
   private updateChatsListFile(): void {
     console.log("updating chats list file");
-    const fileName = this.userManager.getUserDir(this.userId) + "/chats-list";
+    const fileName = this.chatsListFilePath();
     const store = new Store({ name: fileName, schema: ChatManagerService.chatsListSchema });
     store.set('chats', this.chatsList);
   }
@@ -225,6 +278,14 @@ export class ChatManagerService {
 
   getDateFromDateStr(date:string) {
     return date.split('T')[0];
+  }
+
+  private chatFilePath(id: number): string {
+    return this.userManager.getUserDir(this.userId) + "/chats/chat-" + id;
+  }
+
+  private chatsListFilePath(): string {
+    return this.userManager.getUserDir(this.userId) + "/chats-list";
   }
 
   // TODO: fix this schema
@@ -309,6 +370,10 @@ class ChatsContainer {
 
   getIds(): number[] {
     return Object.keys(this.chats).map(Number);
+  }
+
+  getChatsArray(): ChatData[] {
+    return Object.values(this.chats);
   }
 
   clear() {

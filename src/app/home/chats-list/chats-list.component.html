@@ -6,7 +6,7 @@
       <a href="#">
         <p class="chat-date">{{chatListItem.last_msg_date}}</p>
         <p class="chat-label">{{chatListItem.name}}</p>
-        <p class="chat-last-msg">{{chatListItem.last_msg_from}}: {{chatListItem.last_msg_text}}</p>
+        <p *ngIf="chatListItem.last_msg_from != ''" class="chat-last-msg">{{chatListItem.last_msg_from}}: {{chatListItem.last_msg_text}}</p>
       </a>
     </li>
 
