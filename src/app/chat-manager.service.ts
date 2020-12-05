@@ -91,8 +91,7 @@ export class ChatManagerService {
 
   sendMessage(chatId: number, msg: ChatMsg): void {
     this.addMessageToChat(chatId, msg);
-    console.warn("unimplemented");
-    // this.subspaceCom.sendMessage(chatId, msg);
+    this.subspaceCom.sendData(chatId, msg);
   }
 
   private loadChatsListFromFile(): void {
@@ -112,6 +111,10 @@ export class ChatManagerService {
   }
 
   getLastMessage(id: number = this.activeChatId): ChatMsg {
+    if (this.chatsContainer.getMessages(id).length == 0) {
+      console.warn("no messages in chat #" + id);
+      return {} as ChatMsg;
+    }
     return this.chatsContainer.getMessages(id).slice(-1)[0];
   }
 

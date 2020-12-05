@@ -5,10 +5,10 @@ import { Injectable } from '@angular/core';
 })
 export class SubspaceComService {
 
+  constructor() {
+  }
 
-
-  constructor() { }
-
-  sendMessage(targetId: string, payload: string): void {
+  sendData(targetId: number, data: any): void {
+    console.warn("unimplemented");
   }
 }
