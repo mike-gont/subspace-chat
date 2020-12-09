@@ -81,5 +81,12 @@ export class ChatsListComponent implements OnInit {
       this.chatManager.setActiveChatId(chatId);
     }
   }
+
+  getActiveChatId(): number {
+    if (this.chatManager.activeChatId) {
+      return this.chatManager.activeChatId;
+    }
+    return -1;
+  }
     
 }

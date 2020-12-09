@@ -5,10 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class SubspaceComService {
 
-  connections: { [id: number]: RTCPeerConnection };
-
   constructor() {
-    this.connections = {};
   }
 
   sendData(targetId: number, data: any): void {

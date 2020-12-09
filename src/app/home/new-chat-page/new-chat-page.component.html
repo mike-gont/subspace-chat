@@ -4,7 +4,7 @@
     <div class="modal-background"></div>
     <div class="modal-content">
 
-      <article class="message">
+      <article class="message is-dark">
         <div class="message-header">
           <p>New Chat</p>
           <button class="delete" (click)=closePage()></button>
@@ -30,9 +30,7 @@
               </p>
             </div>
 
-            <button class="button" (click)=createOffer()>
-              Refresh Offer
-            </button>
+            <button class="button" (click)=createOffer()>Refresh Offer</button>
 
             <div class="control">
               <textarea #my_offer class="textarea" type="text" readonly>your offer should appear here</textarea>

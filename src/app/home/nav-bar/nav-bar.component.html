@@ -1,27 +1,24 @@
-
-<div class="control" style="padding: 10px;">
-  <div class="tags has-addons">
-    <span class="tag is-dark is-large">User:</span>
-    <span class="tag is-primary is-large">{{ userManager.getUserName() }}</span>
-  </div>
-</div>
-
 <div class="nav-bar-container">
 
-  <div>
-    <button class="button is-link" (click)=homeComponent.showNewUserPage()>New User</button>
+  <div style="padding: 10px; color: #88c0d0; font-size: 1.5rem;">
+    <p>{{ userManager.getUserName() }}</p>
   </div>
 
-  <div class="control">
-    <div class="select">
-      <select #userselector>
-        <option value="" selected disabled hidden>choose user</option>
-        <option *ngFor="let user of userManager.getUsers()" [value]="user.id">{{ user.name }}</option>
-      </select>
+  <div class="nav-bar-buttons">
+    <div>
+      <button class="button is-link" (click)=homeComponent.showNewUserPage()>New User</button>
     </div>
-  </div>
-  <button class="button" (click)=switchUser(userselector.value)>Switch</button>
-  <button class="button is-warning" (click)=homeComponent.showNewChatPage()>New Chat</button>
 
+    <div class="control">
+      <div class="select">
+        <select #userselector>
+          <option value="" selected disabled hidden>choose user</option>
+          <option *ngFor="let user of userManager.getUsers()" [value]="user.id">{{ user.name }}</option>
+        </select>
+      </div>
+    </div>
+    <button class="button" (click)=switchUser(userselector.value)>Switch</button>
+    <button class="button is-warning" (click)=homeComponent.showNewChatPage()>New Chat</button>
+  </div>
 
 </div>

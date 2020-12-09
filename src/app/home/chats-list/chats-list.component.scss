@@ -1,17 +1,14 @@
 
 .chat-label {
-  color: whitesmoke;
   font-weight: bold;
 }
 
 .chat-date {
-  color: #acacac;
   font-size: 0.7em;
   float: right;
 }
 
 .chat-last-msg {
-  color: #acacac;
   font-size: 0.9em;
 }
 
@@ -28,7 +25,7 @@ ul {
 
 li a {
   display: block;
-  color: whitesmoke;
+  color: #eceff4;
   font-size: 1rem;
   height: 5em;
   line-height: 1.5;
@@ -40,11 +37,13 @@ li a {
 }
 
 li a:hover {
-  background-color: #66376e;
+  background-color: #434c5e;
 }
 
 li a:focus,
-li a:active {
-  background-color: #512b58;
+li a:active,
+li a.active {
+  background-color: #88c0d0;
+  color: #2e3440;
 }
 
