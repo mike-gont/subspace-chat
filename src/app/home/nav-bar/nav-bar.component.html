@@ -1,13 +1,12 @@
 <div class="nav-bar-container">
 
-  <div style="padding: 10px; color: #88c0d0; font-size: 1.5rem;">
+  <div style="padding: 10px; color: #eceff4; font-size: 1.5rem;">
     <p>{{ userManager.getUserName() }}</p>
   </div>
 
   <div class="nav-bar-buttons">
-    <div>
-      <button class="button is-link" (click)=homeComponent.showNewUserPage()>New User</button>
-    </div>
+    <button class="button is-warning" (click)=homeComponent.showNewChatPage()>New Chat</button>
+    <button class="button is-link" (click)=homeComponent.showNewUserPage()>New User</button>
 
     <div class="control">
       <div class="select">
@@ -18,7 +17,6 @@
       </div>
     </div>
     <button class="button" (click)=switchUser(userselector.value)>Switch</button>
-    <button class="button is-warning" (click)=homeComponent.showNewChatPage()>New Chat</button>
   </div>
 
 </div>

@@ -31,8 +31,8 @@ export class ChatsListComponent implements OnInit {
 
   observeNewMessageFlag(): void {
     this.chatManager.newMessageFlag$.subscribe(
-      id => {
-        this.updateItem(id);
+      chatId => {
+        this.updateItem(chatId);
       }
     )
   }
@@ -53,18 +53,26 @@ export class ChatsListComponent implements OnInit {
 
   updateItem(id: number): void {
     console.log("chats list comp: updateItem");
-    for (let item of this.chatsList) {
-      if (item.id == id) {
-        let msg = this.chatManager.getLastMessage(item.id);
-        item.last_msg_from = msg.from;
-        item.last_msg_date = this.chatManager.getDateFromDateStr(msg.date)
-          + " " + this.chatManager.getTimeFromDateStr(msg.date);
-        item.last_msg_text = msg.text;
-        break;
-      }
+    let targetItem = this.chatsList.find(item => { return item.id == id });
+
+    if (targetItem) {
+      let msg = this.chatManager.getLastMessage(targetItem.id);
+      targetItem.last_msg_from = msg.from;
+      targetItem.last_msg_date = this.chatManager.getDateFromDateStr(msg.date) +
+        " " + this.chatManager.getTimeFromDateStr(msg.date);
+      targetItem.last_msg_text = msg.text;
+
+      // move item to top
+      const itemIndex = this.chatsList.indexOf(targetItem);
+      this.chatsList.splice(itemIndex, 1);
+      this.chatsList.unshift(targetItem);
+    }
+    else {
+      console.error("no item with id: " + id + " in chatsList");
     }
   }
 
+  // TODO Mike: not in use
   refresh(): void {
     console.log("chats list comp: refresh");
     for (let item of this.chatsList) {

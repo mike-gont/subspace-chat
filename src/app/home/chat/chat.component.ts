@@ -12,7 +12,7 @@ export class ChatComponent implements OnInit {
   @ViewChild('chatview') private chatDiv: ElementRef;
   @ViewChild('inputbox') private inputBoxEl: ElementRef;
 
-  chatData: ChatData;
+  chatData: ChatData; // when active, this is a reference to a chat in ChatManagerService
 
   constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
     this.observeActiveChatId();
@@ -48,8 +48,8 @@ export class ChatComponent implements OnInit {
 
   observeNewMessageFlag(): void {
     this.chatManager.newMessageFlag$.subscribe(
-      id => {
-        // TODO: implement
+      chatId => {
+        // nothing to do here currently. current chat is updated through the reference: this.chatData
       }
     )
   }
@@ -92,6 +92,9 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage(): void {
+    if (this.inputBoxEl.nativeElement.value == "") {
+      return;
+    }
     this.updateDraft(this.inputBoxEl.nativeElement.value);
     this.inputBoxEl.nativeElement.value = "";
     let messageText: string = this.chatData.draft;

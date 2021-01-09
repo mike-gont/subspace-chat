@@ -41,8 +41,8 @@ export class ChatManagerService {
   // Observable new message flag
   private newMessageFlagSource = new Subject<number>();
   newMessageFlag$ = this.newMessageFlagSource.asObservable();
-  raiseNewMessageFlag(id: number) {
-    this.newMessageFlagSource.next(id);
+  raiseNewMessageFlag(chatId: number) {
+    this.newMessageFlagSource.next(chatId);
   }
 
   private observeActiveUserId(): void {
