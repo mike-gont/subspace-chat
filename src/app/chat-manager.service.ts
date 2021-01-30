@@ -23,6 +23,7 @@ export class ChatManagerService {
     this.chatsContainer = new ChatsContainer;
 
     this.observeActiveUserId();
+    this.observeIncomingMessages();
 
     if (userManager.isConfigured) {
       this.userId = this.userManager.getActiveUserId();
@@ -41,8 +42,8 @@ export class ChatManagerService {
   // Observable new message flag
   private newMessageFlagSource = new Subject<number>();
   newMessageFlag$ = this.newMessageFlagSource.asObservable();
-  raiseNewMessageFlag(id: number) {
-    this.newMessageFlagSource.next(id);
+  raiseNewMessageFlag(chatId: number) {
+    this.newMessageFlagSource.next(chatId);
   }
 
   private observeActiveUserId(): void {
@@ -54,15 +55,20 @@ export class ChatManagerService {
     );
   }
 
-  createChat(name: string): void {
-    let id: number = this.genChatId();
-    while (this.chatsContainer.chatExists(id)) {
-      id = Math.floor(Math.random() * 1000000000);
-    }
-    let type = "group_chat"; // TODO: FUTURE: add private chat option
+  private observeIncomingMessages(): void {
+    this.subspaceCom.incomingMessageObservable.subscribe(data =>
+        this.handleIncomingMessage(data.sessionId, data.msgPacked)
+    )
+  }
 
+  // TODO: add a listener to get an updates about message statuses from SubspaceCom
+
+
+  createChat(chatId: number, name: string): void {
+    console.log("createChat: chatId: " + chatId + ", name: " + name);
+    let type = "private-chat"; // TODO: FUTURE: add group chat option
     let newChat: ChatData = {
-      id: id,
+      id: chatId,
       name: name,
       type: type,
       messages: [],
@@ -73,7 +79,7 @@ export class ChatManagerService {
     this.chatsContainer.setChat(newChat);
 
     let newListItem: ChatsListItem = {
-      id: id,
+      id: chatId,
       name: name,
       last_msg_from: "",
       last_msg_date: "",
@@ -81,17 +87,20 @@ export class ChatManagerService {
     };
     this.chatsList.push(newListItem);
 
-    this.createChatFile(id);
+    this.createChatFile(chatId);
     this.updateChatsListFile();
-  }
-
-  private genChatId(): number {
-    return Math.floor(Math.random() * 1000000000);
   }
 
   sendMessage(chatId: number, msg: ChatMsg): void {
     this.addMessageToChat(chatId, msg);
-    this.subspaceCom.sendData(chatId, msg);
+    const msgPacked = JSON.stringify(msg);
+    this.subspaceCom.sendMessage(chatId, msgPacked);
+  }
+
+  private handleIncomingMessage(sessionId: number, msgPacked: string): void {
+    const chatId = sessionId;
+    const msg: ChatMsg = JSON.parse(msgPacked);
+    this.addMessageToChat(chatId, msg);
   }
 
   private loadChatsListFromFile(): void {

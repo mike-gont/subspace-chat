@@ -2,11 +2,11 @@
 
   <ul>
 
-    <li *ngFor="let chatListItem of chatsList" (click)=onChatSelect(chatListItem.id)>
-      <a href="#">
-        <p class="chat-date">{{chatListItem.last_msg_date}}</p>
-        <p class="chat-label">{{chatListItem.name}}</p>
-        <p *ngIf="chatListItem.last_msg_from != ''" class="chat-last-msg">{{chatListItem.last_msg_from}}: {{chatListItem.last_msg_text}}</p>
+    <li *ngFor="let item of chatsList" (click)=onChatSelect(item.id)>
+      <a [ngClass]="{active: item.id == getActiveChatId()}">
+        <p class="chat-date">{{item.last_msg_date}}</p>
+        <p class="chat-label">{{item.name}}</p>
+        <p *ngIf="item.last_msg_from != ''" class="chat-last-msg">{{item.last_msg_from}}: {{item.last_msg_text}}</p>
       </a>
     </li>
 
