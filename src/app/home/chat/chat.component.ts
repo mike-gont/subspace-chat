@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
 import { ChatManagerService, ChatData, ChatMsg, MsgStatus } from 'app/chat-manager.service';
 import { ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-chat',
@@ -14,7 +15,11 @@ export class ChatComponent implements OnInit {
 
   chatData: ChatData; // when active, this is a reference to a chat in ChatManagerService
 
-  constructor(private userManager: UserManagerService, private chatManager: ChatManagerService) {
+  constructor(
+    private userManager: UserManagerService,
+    private chatManager: ChatManagerService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
     this.observeActiveChatId();
     this.observeActiveUserId();
     this.observeNewMessageFlag();
@@ -49,7 +54,8 @@ export class ChatComponent implements OnInit {
   observeNewMessageFlag(): void {
     this.chatManager.newMessageFlag$.subscribe(
       chatId => {
-        // nothing to do here currently. current chat is updated through the reference: this.chatData
+        // make sure the chat view is updated with the new chat state
+        this.changeDetectorRef.detectChanges();
       }
     )
   }
@@ -92,6 +98,7 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage(): void {
+    // TODO: check through chatManager if sending is possible (it'll check if SubspaceCom has an open channel)
     if (this.inputBoxEl.nativeElement.value == "") {
       return;
     }

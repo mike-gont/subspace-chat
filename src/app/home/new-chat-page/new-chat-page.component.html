@@ -30,19 +30,26 @@
               </p>
             </div>
 
-            <button class="button" (click)=createOffer()>Refresh Offer</button>
+            <button class="button" (click)=initComAndCreateOffer()>Create Offer</button>
 
             <div class="control">
-              <textarea #my_offer class="textarea" type="text" readonly>your offer should appear here</textarea>
+              <textarea #local_offer class="textarea" type="text" placeholder="your offer should appear here" readonly></textarea>
             </div>
 
             <div class="control">
-              <textarea #remote_answer class="textarea" type="text">paste answer here</textarea>
+              <textarea #remote_answer class="textarea" type="text" placeholder="paste answer here"></textarea>
             </div>
+
+            <button class="button is-primary" (click)=acceptAnswer(remote_answer.value)>
+              Accept Answer
+            </button>
+
+            <p>Connection State: {{ connectionState }}</p>
+            <p>Ice Connection State: {{ iceConnectionState }}</p>
 
             <div class="field">
               <p class="control">
-                <button class="button is-primary" (click)=createNewChat(join_name_input.value,remote_answer.value)>
+                <button class="button is-primary" (click)=createNewChat(join_name_input.value)>
                   Create
                 </button>
               </p>
@@ -59,20 +66,23 @@
             </div>
 
             <div class="control">
-              <textarea #remote_offer class="textarea" type="text">paste offer here</textarea>
+              <textarea #remote_offer class="textarea" type="text" placeholder="paste offer here"></textarea>
             </div>
 
-            <button class="button" (click)=createAnswer(remote_offer.value)>
+            <button class="button" (click)=acceptComAndCreateAnswer(remote_offer.value)>
               Create Answer
             </button>
 
             <div class="control">
-              <textarea #my_answer class="textarea" type="text" readonly>your answer should appear here</textarea>
+              <textarea #local_answer class="textarea" type="text" placeholder="your answer should appear here" readonly></textarea>
             </div>
+
+            <p>Connection State: {{ connectionState }}</p>
+            <p>Ice Connection State: {{ iceConnectionState }}</p>
 
             <div class="field">
               <p class="control">
-                <button class="button is-primary" (click)=joinNewChat(name_input.value,my_answer.value)>
+                <button class="button is-primary" (click)=createNewChat(name_input.value)>
                   Join
                 </button>
               </p>

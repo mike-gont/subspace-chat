@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from 'app/user-manager.service';
 import { ChatManagerService, ChatsListItem } from 'app/chat-manager.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-chats-list',
@@ -11,7 +12,11 @@ export class ChatsListComponent implements OnInit {
   
   chatsList: ChatsListItem[];
 
-  constructor(private chatManager: ChatManagerService, private userManager: UserManagerService) {
+  constructor(
+    private chatManager: ChatManagerService,
+    private userManager: UserManagerService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
     this.observeActiveUserId();
     this.observeNewMessageFlag();
   }
@@ -66,6 +71,9 @@ export class ChatsListComponent implements OnInit {
       const itemIndex = this.chatsList.indexOf(targetItem);
       this.chatsList.splice(itemIndex, 1);
       this.chatsList.unshift(targetItem);
+
+      // make sure the list view is updated with the new list state
+      this.changeDetectorRef.detectChanges();
     }
     else {
       console.error("no item with id: " + id + " in chatsList");
