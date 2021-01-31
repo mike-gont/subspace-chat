@@ -182,6 +182,10 @@ export class ChatManagerService {
   }
 
   private addMessageToChat(id: number, msg: ChatMsg): void {
+    if (!this.chatsContainer.chatExists(id)) {
+      console.error("chat #" + id + " doesn't exist!");
+      return;
+    }
     console.log("chat mgr: new msg for chat " + id + ": " + msg.text);
     this.chatsContainer.getMessages(id).push(msg);
     this.chatsContainer.getChat(id).numOfUnstoredMessages++;
