@@ -1,5 +1,12 @@
 
-
-.new-chat-page-container {
+.textarea {
+    user-select: all;
 }
 
+.textarea.valid {
+    background-color : #efffe0;
+}
+
+.textarea.invalid {
+    background-color : #ffdfe0;
+}

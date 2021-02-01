@@ -5,6 +5,7 @@ import { SubspaceComService } from 'app/subspace-com.service';
 
 const Store = require('electron-store');
 
+// TODO: add API function: delete chat
 @Injectable({
   providedIn: 'root'
 })
@@ -95,6 +96,11 @@ export class ChatManagerService {
     this.addMessageToChat(chatId, msg);
     const msgPacked = JSON.stringify(msg);
     this.subspaceCom.sendMessage(chatId, msgPacked);
+  }
+
+  chatConnectionIsOpen(chatId: number): boolean {
+    const sessionId = chatId;
+    return this.subspaceCom.connectionIsOpen(sessionId);
   }
 
   private handleIncomingMessage(sessionId: number, msgPacked: string): void {

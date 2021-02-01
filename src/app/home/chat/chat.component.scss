@@ -110,6 +110,8 @@ form {
   margin-top: 8px;
   margin-bottom: 8px;
   transition: all 0.5s;
+
+  user-select: text !important;
 }
 
 .chat-message--right {

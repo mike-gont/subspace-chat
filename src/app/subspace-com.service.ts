@@ -19,20 +19,44 @@ export class SubspaceComService {
     this.newIncomingMessageSubject.next({ sessionId: sessionId, msgPacked: msgPacked });
   }
 
-  getPeerConnection(sessionId: number): RTCPeerConnection {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
-      return;
+  connectionIsOpen(sessionId: number) {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return false;
     }
-    return this.sessions[sessionId].peerConnection;
+    return session.peerConnection.connectionState == "connected";
   }
 
-  sendMessage(sessionId: number, msgPacked: string) {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
+  closeSession(sessionId: number): void {
+    const session = this.getSession(sessionId);
+    if (!session) {
       return;
     }
-    const channel = this.sessions[sessionId].messagingChannel;
+    console.log("closing connection and channel for session #" + sessionId);
+    if (session.messagingChannel) {
+      session.messagingChannel.close();
+    }
+    if (session.peerConnection) {
+      session.peerConnection.close();
+    }
+    console.log("deleting session #" + sessionId);
+    delete this.sessions[sessionId];
+  }
+
+  getSession(sessionId: number): SubspaceSession {
+    if (this.sessionExists(sessionId) == false) {
+      console.error("session with id: " + sessionId + " doesn't exist!");
+      return undefined;
+    }
+    return this.sessions[sessionId];
+  }
+
+  sendMessage(sessionId: number, msgPacked: string): void {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return;
+    }
+    const channel = session.messagingChannel;
     if (!channel) {
       console.error("can't send message, messaging channel is not defined!");
       return;
@@ -42,7 +66,7 @@ export class SubspaceComService {
       return;
     }
     console.log("sending packed msg: ", msgPacked)
-    this.sessions[sessionId].messagingChannel.send(msgPacked);
+    channel.send(msgPacked);
     // TODO: make an event about the sent message, so that the chat manager could update the message status
   }
 
@@ -62,11 +86,11 @@ export class SubspaceComService {
     )
 
   async createOffer(sessionId: number): Promise<string> {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
-      return undefined;
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return;
     }
-    const connection = this.sessions[sessionId].peerConnection;
+    const connection = session.peerConnection;
     const channel = connection.createDataChannel('messaging-channel');
     console.log("created messsaging channel for session #" + sessionId);
     this.setMessagingChannel(sessionId, channel);
@@ -79,16 +103,16 @@ export class SubspaceComService {
   }
 
   async acceptRemoteOfferAndCreateAnswer(remoteOfferStr: string, sessionId: number): Promise<string> {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
-      return undefined;
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return;
     }
-    const connection = this.sessions[sessionId].peerConnection;
+    const connection = session.peerConnection;
     let remoteOffer: RTCSessionDescriptionInit;
     try {
       remoteOffer = JSON.parse(remoteOfferStr);
     } catch (e) {
-      console.log("parsing offer json failed: ", e);
+      console.error("parsing offer json failed: ", e);
       return undefined;
     }
     // accept remote offer
@@ -103,16 +127,22 @@ export class SubspaceComService {
   }
 
   async acceptAnswer(remoteAnswerStr: string, sessionId: number) {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
+    const session = this.getSession(sessionId);
+    if (!session) {
       return;
     }
-    const connection = this.sessions[sessionId].peerConnection;
+    const connection = session.peerConnection;
     if (connection.signalingState == "stable") {
       console.log("no need to accept remote answer, state is already 'stable'");
       return;
     }
-    const remoteAnswer = JSON.parse(remoteAnswerStr);
+    let remoteAnswer: RTCSessionDescriptionInit;
+    try {
+      remoteAnswer = JSON.parse(remoteAnswerStr);
+    } catch (e) {
+      console.error("parsing answer json failed: ", e);
+      return;
+    }
     await connection.setRemoteDescription(remoteAnswer);
     console.log("accepted remote answer for session #" + sessionId);
   }
@@ -127,14 +157,14 @@ export class SubspaceComService {
   }
 
   private setPeerConnection(sessionId: number, connection: RTCPeerConnection): void {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
+    const session = this.getSession(sessionId);
+    if (!session) {
       return;
     }
-    if (this.sessions[sessionId].peerConnection) {
+    if (session.peerConnection) {
       console.warn("peer connection already exists for session #" + sessionId + ", overriding...");
     }
-    this.sessions[sessionId].peerConnection = connection;
+    session.peerConnection = connection;
     console.log("set a peer connection for session #" + sessionId);
 
     // peer connection event handlers
@@ -148,14 +178,14 @@ export class SubspaceComService {
   }
 
   private setMessagingChannel(sessionId: number, channel: RTCDataChannel): void {
-    if (this.sessionExists(sessionId) == false) {
-      console.error("session with id: " + sessionId + " doesn't exist!");
+    const session = this.getSession(sessionId);
+    if (!session) {
       return;
     }
-    if (this.sessions[sessionId].messagingChannel) {
+    if (session.messagingChannel) {
       console.warn("messaging channel already exists for session #" + sessionId + ", overriding...");
     }
-    this.sessions[sessionId].messagingChannel = channel;
+    session.messagingChannel = channel;
     console.log("set a messsaging channel for session #" + sessionId);
 
     // channel event handlers

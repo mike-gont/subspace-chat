@@ -30,29 +30,33 @@
               </p>
             </div>
 
-            <button class="button" (click)=initComAndCreateOffer()>Create Offer</button>
-
-            <div class="control">
-              <textarea #local_offer class="textarea" type="text" placeholder="your offer should appear here" readonly></textarea>
+            <div class="field">
+              <button class="button" (click)=initComAndCreateOffer()>Create Offer</button>
             </div>
-
-            <div class="control">
-              <textarea #remote_answer class="textarea" type="text" placeholder="paste answer here"></textarea>
-            </div>
-
-            <button class="button is-primary" (click)=acceptAnswer(remote_answer.value)>
-              Accept Answer
-            </button>
-
-            <p>Connection State: {{ connectionState }}</p>
-            <p>Ice Connection State: {{ iceConnectionState }}</p>
 
             <div class="field">
-              <p class="control">
-                <button class="button is-primary" (click)=createNewChat(join_name_input.value)>
-                  Create
-                </button>
-              </p>
+              <textarea #local_offer [className]=localOfferTextElClass type="text" placeholder="your offer should appear here" readonly></textarea>
+            </div>
+
+            <div class="field">
+              <textarea #remote_answer [className]=remoteAnswerTextElClass type="text" placeholder="paste answer here"></textarea>
+            </div>
+
+            <div class="field">
+              <button class="button is-primary" (click)=acceptAnswer(remote_answer.value)>
+                Accept Answer
+              </button>
+            </div>
+
+            <div class="field">
+              <p>Connection State: {{ connectionState }}</p>
+              <p>Ice Connection State: {{ iceConnectionState }}</p>
+            </div>
+
+            <div class="field">
+              <button class="button is-primary" (click)=createNewChat(join_name_input.value)>
+                Create Chat
+              </button>
             </div>
 
           </div>
@@ -65,27 +69,29 @@
               </p>
             </div>
 
-            <div class="control">
-              <textarea #remote_offer class="textarea" type="text" placeholder="paste offer here"></textarea>
+            <div class="field">
+              <textarea #remote_offer [className]=remoteOfferTextElClass type="text" placeholder="paste offer here"></textarea>
             </div>
-
-            <button class="button" (click)=acceptComAndCreateAnswer(remote_offer.value)>
-              Create Answer
-            </button>
-
-            <div class="control">
-              <textarea #local_answer class="textarea" type="text" placeholder="your answer should appear here" readonly></textarea>
-            </div>
-
-            <p>Connection State: {{ connectionState }}</p>
-            <p>Ice Connection State: {{ iceConnectionState }}</p>
 
             <div class="field">
-              <p class="control">
-                <button class="button is-primary" (click)=createNewChat(name_input.value)>
-                  Join
-                </button>
-              </p>
+              <button class="button" (click)=acceptComAndCreateAnswer(remote_offer.value)>
+                Create Answer
+              </button>
+            </div>
+
+            <div class="field">
+              <textarea #local_answer [className]=localAnswerTextElClass type="text" placeholder="your answer should appear here" readonly></textarea>
+            </div>
+
+            <div class="field">
+              <p>Connection State: {{ connectionState }}</p>
+              <p>Ice Connection State: {{ iceConnectionState }}</p>
+            </div>
+
+            <div class="field">
+              <button class="button is-primary" (click)=createNewChat(name_input.value)>
+                Create Chat
+              </button>
             </div>
 
           </div>

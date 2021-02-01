@@ -10,12 +10,14 @@
 .home-left-container {
   flex-grow: 1;
   min-width: 300px;
-  max-width: 500px;
+  max-width: 400px;
   background-color: #2e3440;
   border-right: solid #3b4252 2px;
+  height: 100vh;
 }
 
 .home-right-container {
   flex-grow: 2;
   background-color: #2e3440;
+  height: 100vh;
 }
