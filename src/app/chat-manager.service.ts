@@ -92,10 +92,14 @@ export class ChatManagerService {
     this.updateChatsListFile();
   }
 
-  sendMessage(chatId: number, msg: ChatMsg): void {
+  sendMessage(chatId: number, msg: ChatMsg): boolean {
     this.addMessageToChat(chatId, msg);
     const msgPacked = JSON.stringify(msg);
-    this.subspaceCom.sendMessage(chatId, msgPacked);
+    const msgSent: boolean = this.subspaceCom.sendMessage(chatId, msgPacked);
+    if (msgSent) {
+      msg.status = MsgStatus.Sent;
+    }
+    return msgSent;
   }
 
   chatConnectionIsOpen(chatId: number): boolean {

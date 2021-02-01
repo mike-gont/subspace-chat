@@ -51,23 +51,23 @@ export class SubspaceComService {
     return this.sessions[sessionId];
   }
 
-  sendMessage(sessionId: number, msgPacked: string): void {
+  sendMessage(sessionId: number, msgPacked: string): boolean {
     const session = this.getSession(sessionId);
     if (!session) {
-      return;
+      return false;
     }
     const channel = session.messagingChannel;
     if (!channel) {
       console.error("can't send message, messaging channel is not defined!");
-      return;
+      return false;
     }
     if (channel.readyState != "open") {
       console.error("can't send message, channel is not open");
-      return;
+      return false;
     }
     console.log("sending packed msg: ", msgPacked)
     channel.send(msgPacked);
-    // TODO: make an event about the sent message, so that the chat manager could update the message status
+    return true;
   }
 
   sendData(targetId: number, data: any): void {
@@ -199,7 +199,7 @@ export class SubspaceComService {
       console.log("Session #" + sessionId + " channel.onerror event:", event);
     }
     channel.onmessage = event => {
-      const msgPacked: string = event.data;
+      const msgPacked: string = event.data; // TODO: change to payload and extract msgType and msgPacked from it if msgType is chat msg
       console.log("Session #" + sessionId + " received new msg:", msgPacked + ". dispatching event...");
       this.notifyIncomingMessageToSubscribers(sessionId, msgPacked);
       // TODO: send receive confirmation to sender

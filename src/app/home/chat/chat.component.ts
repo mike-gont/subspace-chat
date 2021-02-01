@@ -98,7 +98,6 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage(): void {
-    // TODO: check through chatManager if sending is possible (it'll check if SubspaceCom has an open channel)
     if (this.chatManager.chatConnectionIsOpen(this.chatData.id) == false) {
       alert("Connection to peer is not open");
       return;
