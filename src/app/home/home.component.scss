@@ -14,6 +14,22 @@
   background-color: #2e3440;
   border-right: solid #3b4252 2px;
   height: 100vh;
+
+  display: flex;
+  flex-flow: column;
+}
+
+.app-nav-bar {
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-basis: auto;
+}
+
+.app-chats-list {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  overflow-y: hidden;
 }
 
 .home-right-container {
