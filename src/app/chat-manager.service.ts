@@ -5,6 +5,7 @@ import { SubspaceComService } from 'app/subspace-com.service';
 
 const Store = require('electron-store');
 
+// TODO: add API function: delete chat
 @Injectable({
   providedIn: 'root'
 })
@@ -25,7 +26,7 @@ export class ChatManagerService {
     this.observeActiveUserId();
     this.observeIncomingMessages();
 
-    if (userManager.isConfigured) {
+    if (userManager.activeUserConfigured()) {
       this.userId = this.userManager.getActiveUserId();
       this.loadChatsListFromFile();
     }
@@ -91,10 +92,19 @@ export class ChatManagerService {
     this.updateChatsListFile();
   }
 
-  sendMessage(chatId: number, msg: ChatMsg): void {
+  sendMessage(chatId: number, msg: ChatMsg): boolean {
     this.addMessageToChat(chatId, msg);
     const msgPacked = JSON.stringify(msg);
-    this.subspaceCom.sendMessage(chatId, msgPacked);
+    const msgSent: boolean = this.subspaceCom.sendMessage(chatId, msgPacked);
+    if (msgSent) {
+      msg.status = MsgStatus.Sent;
+    }
+    return msgSent;
+  }
+
+  chatConnectionIsOpen(chatId: number): boolean {
+    const sessionId = chatId;
+    return this.subspaceCom.connectionIsOpen(sessionId);
   }
 
   private handleIncomingMessage(sessionId: number, msgPacked: string): void {
@@ -182,6 +192,10 @@ export class ChatManagerService {
   }
 
   private addMessageToChat(id: number, msg: ChatMsg): void {
+    if (!this.chatsContainer.chatExists(id)) {
+      console.error("chat #" + id + " doesn't exist!");
+      return;
+    }
     console.log("chat mgr: new msg for chat " + id + ": " + msg.text);
     this.chatsContainer.getMessages(id).push(msg);
     this.chatsContainer.getChat(id).numOfUnstoredMessages++;
@@ -239,8 +253,11 @@ export class ChatManagerService {
 
   private onUserSwitch(): void {
     console.log("chat mgr: onUserSwitch");
-    this.updateAllChatFiles();
-    this.updateChatsListFile();
+    if (this.userId) {
+      console.log("saving current user's chat data to files before switching to another user...");
+      this.updateAllChatFiles();
+      this.updateChatsListFile();
+    }
     this.chatsList = [];
     this.chatsContainer.clear();
     this.activeChatId = undefined;

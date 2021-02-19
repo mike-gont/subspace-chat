@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router, private userManager: UserManagerService) { }
 
   ngOnInit(): void {
-    if (!this.userManager.isConfigured) {
+    if (!this.userManager.activeUserConfigured()) {
       this.showNewUserPage();
     }
    }
