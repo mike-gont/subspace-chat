@@ -22,7 +22,9 @@ export class ChatsListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadChatsList();
+    if (this.userManager.activeUserConfigured()) {
+      this.loadChatsList();
+    }
   }
 
   observeActiveUserId(): void {

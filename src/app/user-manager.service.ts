@@ -10,13 +10,13 @@ export class UserManagerService {
 
   usersContainer: UsersContainer;
   activeUserId: string;
-  isConfigured: boolean;
+
+  static usersDataDir = "user-data/";
+  static usersJsonFileName = UserManagerService.usersDataDir + "users";
 
   constructor() {
-    this.isConfigured = false;
     this.usersContainer = new UsersContainer;
-    let load_res: boolean = this.loadDataFromFile();
-    this.isConfigured = load_res;
+    this.loadDataFromFile();
   }
 
   // Observable activeUserId source and stream
@@ -27,8 +27,12 @@ export class UserManagerService {
     this.activeUserIdSource.next(id);
   }
 
+  activeUserConfigured(): boolean {
+    return this.activeUserId != undefined;
+  }
+
   getUserName(id: string = this.activeUserId): string {
-    if (!this.isConfigured) {
+    if (!this.activeUserConfigured()) {
       console.error("active user is not defined!");
       return undefined;
     }
@@ -36,7 +40,7 @@ export class UserManagerService {
   }
 
   getActiveUserId(): string {
-    if (!this.isConfigured) {
+    if (!this.activeUserConfigured()) {
       console.error("active user is not defined!");
       return undefined;
     }
@@ -45,14 +49,14 @@ export class UserManagerService {
 
   getUserDir(id: string = this.activeUserId): string {
     // console.log("getUserDir(id = " + id + ")");
-    return "user-data/" + this.getUserName(id);
+    return UserManagerService.usersDataDir + this.getUserName(id);
   }
 
   addUser(name: string): void {
     const id: string = this.generateId();
     this.usersContainer.setUser({ name: name, id:id });
-    this.switchUser(id);
     this.saveUsersToFile();
+    this.switchUser(id);
   }
 
   switchUser(id: string): void {
@@ -60,30 +64,27 @@ export class UserManagerService {
       console.error("no id");
       return;
     }
-    this.setActiveUser(id);
-    this.saveActiveUserToFile();
+    this.setActiveUserInUsersFile(id);
+    this.setActiveUser(id); // this will notify to subscribers
   }
 
   private saveUsersToFile(): void {
-    const fileName = "user-data/users";
-    const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
+    const store = new Store({name: UserManagerService.usersJsonFileName, schema: UserManagerService.usersListSchema});
     store.set('users', this.usersContainer.getUsersArray());
     console.log("saved users to file");
   }
 
-  private saveActiveUserToFile(): void {
-    const fileName = "user-data/users";
-    const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
-    store.set('active_user_id', this.activeUserId);
-    console.log("saved active user id to file");
+  private setActiveUserInUsersFile(id: string): void {
+    const store = new Store({name: UserManagerService.usersJsonFileName, schema: UserManagerService.usersListSchema});
+    store.set('active_user_id', id);
+    console.log("set new active user id in users file: " + id);
   }
 
-  private loadDataFromFile(): boolean {
-    const fileName = "user-data/users";
-    const store = new Store({name: fileName, schema: UserManagerService.usersListSchema});
+  private loadDataFromFile(): void {
+    const store = new Store({name: UserManagerService.usersJsonFileName, schema: UserManagerService.usersListSchema});
     if (!store.has('active_user_id') || !store.has('users')) {
-      console.warn("user data file is not available / invalid: " + fileName);
-      return false;
+      console.warn("user data file is not available / invalid: " + UserManagerService.usersJsonFileName);
+      return;
     }
 
     for (const item of store.get('users')) {
@@ -98,7 +99,6 @@ export class UserManagerService {
 
     this.setActiveUser(active_user_id);
     console.log("loaded users from file. active user id: " + this.activeUserId);
-    return true;
   }
 
   getUsers(): UserData[] {

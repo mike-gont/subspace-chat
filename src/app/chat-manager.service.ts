@@ -26,7 +26,7 @@ export class ChatManagerService {
     this.observeActiveUserId();
     this.observeIncomingMessages();
 
-    if (userManager.isConfigured) {
+    if (userManager.activeUserConfigured()) {
       this.userId = this.userManager.getActiveUserId();
       this.loadChatsListFromFile();
     }
@@ -253,8 +253,11 @@ export class ChatManagerService {
 
   private onUserSwitch(): void {
     console.log("chat mgr: onUserSwitch");
-    this.updateAllChatFiles();
-    this.updateChatsListFile();
+    if (this.userId) {
+      console.log("saving current user's chat data to files before switching to another user...");
+      this.updateAllChatFiles();
+      this.updateChatsListFile();
+    }
     this.chatsList = [];
     this.chatsContainer.clear();
     this.activeChatId = undefined;
