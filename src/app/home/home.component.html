@@ -3,11 +3,12 @@
   <app-new-chat-page *ngIf="activePopUp == 'new-chat-page'"></app-new-chat-page>
 
   <div class="home-left-container">
-    <app-nav-bar></app-nav-bar>
-    <app-chats-list></app-chats-list>
+    <app-nav-bar class="app-nav-bar"></app-nav-bar>
+    <app-chats-list class="app-chats-list"></app-chats-list>
   </div>
 
   <div class="home-right-container">
+    <!-- TODO: add: <app-chat-header></app-chat-header> -->
     <app-chat></app-chat>
   </div>
 </div>
