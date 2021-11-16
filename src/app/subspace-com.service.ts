@@ -19,7 +19,7 @@ export class SubspaceComService {
     this.newIncomingMessageSubject.next({ sessionId: sessionId, msgPacked: msgPacked });
   }
 
-  connectionIsOpen(sessionId: number) {
+  connectionIsOpen(sessionId: number): boolean {
     const session = this.getSession(sessionId);
     if (!session) {
       return false;
