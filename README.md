@@ -47,3 +47,6 @@ npm run ng:serve
 ``` bash
 npm run electron:build
 ```
+
+## License
+[MIT](LICENSE)
