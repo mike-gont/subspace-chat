@@ -2,7 +2,15 @@
 
 A serverless chat application
 
+Implemented using:
+* WebRTC for communication
+* Electron & Angular for creating a cross-platform desktop app
 
+## Screenshots
+
+![Chat](docs/screenshots/chat.png?raw=true "Chat")
+![New Chat Creation](docs/screenshots/new-chat.png?raw=true "New Chat Creation")
+![New Chat Creation - Connection Established](docs/screenshots/new-chat-2.png?raw=true "New Chat Creation - Connection Established")
 
 ## Setup
 
